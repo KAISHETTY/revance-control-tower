@@ -127,7 +127,13 @@ describe("reconcile: detection", () => {
   it("flags an expired lot shipped after its expiry date", () => {
     const lots = { ...LOTS, OLD: { lotId: "OLD", sku: "A", receivedOn: "2025-01-01", expiresOn: "2026-09-01" } };
     const { o, i } = clean();
-    const out = reconcile({ orders: [o], shipments: [shipment("O1", "2026-09-26", [{ sku: "A", qty: 10, lotId: "OLD" }])], invoices: [i], lotCatalog: lots, today: TODAY });
+    const out = reconcile({
+      orders: [o],
+      shipments: [shipment("O1", "2026-09-26", [{ sku: "A", qty: 10, lotId: "OLD" }])],
+      invoices: [i],
+      lotCatalog: lots,
+      today: TODAY,
+    });
     expect(out.map((e) => e.type)).toEqual(["EXPIRY_RISK_SHIPMENT"]);
   });
 });
@@ -223,7 +229,11 @@ describe("severity thresholds", () => {
   it("applies severity to detected exceptions", () => {
     // Shipped 14 days before today, $999 → low; 15 days → medium.
     const mk = (shippedOn: string) =>
-      run([order("O1", "2026-09-01", [{ sku: "A", qty: 9, unitPrice: 111 }])], [shipment("O1", shippedOn, [{ sku: "A", qty: 9, lotId: "GOOD" }])], []);
+      run(
+        [order("O1", "2026-09-01", [{ sku: "A", qty: 9, unitPrice: 111 }])],
+        [shipment("O1", shippedOn, [{ sku: "A", qty: 9, lotId: "GOOD" }])],
+        [],
+      );
     expect(mk("2026-09-25")[0]).toMatchObject({ dollarImpact: 999, daysOpen: 14, severity: "low" });
     expect(mk("2026-09-24")[0]).toMatchObject({ daysOpen: 15, severity: "medium" });
     expect(mk("2026-09-08")[0]).toMatchObject({ daysOpen: 31, severity: "high" });

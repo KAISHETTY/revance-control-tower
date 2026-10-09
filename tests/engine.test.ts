@@ -63,7 +63,15 @@ describe("alerts", () => {
   it("covers the seeded problems and sorts high severity first", () => {
     const alerts = deriveAlerts(generateWorld(42, TODAY));
     const types = new Set(alerts.map((a) => a.type));
-    for (const t of ["COLD_EXCURSION", "COLD_WARNING", "LOT_EXPIRED", "LOT_EXPIRING", "TRUCK_DELAYED", "DOCK_BLOCKED", "FORKLIFT_BATTERY"]) {
+    for (const t of [
+      "COLD_EXCURSION",
+      "COLD_WARNING",
+      "LOT_EXPIRED",
+      "LOT_EXPIRING",
+      "TRUCK_DELAYED",
+      "DOCK_BLOCKED",
+      "FORKLIFT_BATTERY",
+    ]) {
       expect(types.has(t as never), t).toBe(true);
     }
     const ranks = alerts.map((a) => ({ high: 0, medium: 1, low: 2 })[a.severity]);
@@ -100,7 +108,10 @@ describe("kpis", () => {
     expect(k.dockUtilization).toBeLessThanOrEqual(1);
     expect(k.avgDockDwellMinutes).toBeGreaterThan(0);
     expect(k.coldChainAlerts).toBeGreaterThanOrEqual(2);
-    expect(k.dollarsAtRisk).toBeCloseTo(exc.reduce((a, e) => a + e.dollarImpact, 0), 2);
+    expect(k.dollarsAtRisk).toBeCloseTo(
+      exc.reduce((a, e) => a + e.dollarImpact, 0),
+      2,
+    );
 
     const sites = (["NASH", "JCTY", "WEST"] as const).map((id) => computeKpis(w, exc, alerts, id));
     expect(sites.reduce((a, s) => a + s.orderCount, 0)).toBe(300);

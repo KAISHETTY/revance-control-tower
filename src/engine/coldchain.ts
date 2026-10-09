@@ -38,11 +38,27 @@ export function coldChainReadings(world: World): ColdChainReading[] {
   const out: ColdChainReading[] = [];
   for (const site of world.sites) {
     for (const r of site.coldRooms) {
-      out.push({ kind: "coldRoom", id: r.id, label: r.label, siteId: site.id, currentC: r.currentC, setpointC: r.setpointC, status: r.status });
+      out.push({
+        kind: "coldRoom",
+        id: r.id,
+        label: r.label,
+        siteId: site.id,
+        currentC: r.currentC,
+        setpointC: r.setpointC,
+        status: r.status,
+      });
     }
     for (const t of site.trucks) {
       if (t.kind !== "reefer" || t.tempC === undefined || t.setpointC === undefined) continue;
-      out.push({ kind: "truck", id: t.id, label: t.id, siteId: site.id, currentC: t.tempC, setpointC: t.setpointC, status: t.tempStatus ?? "ok" });
+      out.push({
+        kind: "truck",
+        id: t.id,
+        label: t.id,
+        siteId: site.id,
+        currentC: t.tempC,
+        setpointC: t.setpointC,
+        status: t.tempStatus ?? "ok",
+      });
     }
   }
   return out;

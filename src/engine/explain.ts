@@ -30,13 +30,19 @@ export function explainAlert(alert: Alert, world: World): Explanation {
     case "COLD_WARNING":
       if (r?.kind === "coldRoom") {
         const first = r.room.history[0];
-        const trend = first !== undefined && r.room.currentC - first > 1 ? "has been climbing steadily over the last 12 hours" : "is sitting above setpoint";
+        const trend =
+          first !== undefined && r.room.currentC - first > 1
+            ? "has been climbing steadily over the last 12 hours"
+            : "is sitting above setpoint";
         return {
           text: `${r.room.label} ${trend}, which is likely an equipment issue rather than a one-off door opening. It is possibly a few hours from an excursion if nothing changes.`,
           nextStep: alert.nextStep,
         };
       }
-      return { text: `The reading is 2–4°C off setpoint, likely from extended door-open time. It may recover on its own once loading stops.`, nextStep: alert.nextStep };
+      return {
+        text: `The reading is 2–4°C off setpoint, likely from extended door-open time. It may recover on its own once loading stops.`,
+        nextStep: alert.nextStep,
+      };
     case "LOT_EXPIRED":
       if (r?.kind === "lot") {
         return {

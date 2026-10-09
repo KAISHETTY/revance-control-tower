@@ -16,14 +16,7 @@ export interface Dock {
   note?: string;
 }
 
-export type TruckStatus =
-  | "en_route"
-  | "arrived"
-  | "docked"
-  | "loading"
-  | "unloading"
-  | "departed"
-  | "delayed";
+export type TruckStatus = "en_route" | "arrived" | "docked" | "loading" | "unloading" | "departed" | "delayed";
 
 /** Where the truck physically is. Derived from status but stored for clarity. */
 export type TruckLocation = "road" | "yard" | "dock";

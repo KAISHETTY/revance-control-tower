@@ -123,12 +123,23 @@ export function reconcile(input: ReconInput): ReconException[] {
     if (shipped.length === 0) {
       if (invoices.length > 0) {
         const inv = invoices[0];
-        add("INVOICE_WITHOUT_SHIPMENT", total(inv.lines), daysBetween(inv.invoicedOn, today), inv.lines.map((l) => l.sku),
-          `${inv.invoiceId} billed but no shipment has left the building.`);
+        add(
+          "INVOICE_WITHOUT_SHIPMENT",
+          total(inv.lines),
+          daysBetween(inv.invoicedOn, today),
+          inv.lines.map((l) => l.sku),
+          `${inv.invoiceId} billed but no shipment has left the building.`,
+        );
       } else {
         const age = daysBetween(order.orderDate, today);
         if (age > AGED_DAYS) {
-          add("NEVER_SHIPPED_AGED", total(order.lines), age, order.lines.map((l) => l.sku), `Ordered ${age} days ago and nothing has shipped.`);
+          add(
+            "NEVER_SHIPPED_AGED",
+            total(order.lines),
+            age,
+            order.lines.map((l) => l.sku),
+            `Ordered ${age} days ago and nothing has shipped.`,
+          );
         }
       }
     } else {
@@ -158,8 +169,13 @@ export function reconcile(input: ReconInput): ReconException[] {
           const iQty = inv?.qty ?? 0;
           const oPrice = orderPrice.get(sku);
           if (inv && oPrice !== undefined && Math.abs(inv.price - oPrice) > 0.005) {
-            add("PRICE_MISMATCH", Math.abs(inv.price - oPrice) * iQty, daysOpen, [sku],
-              `Invoice price differs from the order price on ${primary.invoiceId}.`);
+            add(
+              "PRICE_MISMATCH",
+              Math.abs(inv.price - oPrice) * iQty,
+              daysOpen,
+              [sku],
+              `Invoice price differs from the order price on ${primary.invoiceId}.`,
+            );
           }
           if (iQty < sQty) {
             add("QTY_MISMATCH", (sQty - iQty) * (oPrice ?? 0), daysOpen, [sku], `Invoiced fewer units than were shipped.`);
@@ -176,8 +192,13 @@ export function reconcile(input: ReconInput): ReconException[] {
           const lifeLeft = daysBetween(s.shippedOn!, lot.expiresOn);
           if (lifeLeft <= EXPIRY_RISK_DAYS) {
             const when = lifeLeft < 0 ? `${-lifeLeft} days after it expired` : `${lifeLeft} days before expiry`;
-            add("EXPIRY_RISK_SHIPMENT", l.qty * (orderPrice.get(l.sku) ?? 0), daysBetween(s.shippedOn!, today), [l.sku],
-              `Lot ${l.lotId} shipped ${when}.`);
+            add(
+              "EXPIRY_RISK_SHIPMENT",
+              l.qty * (orderPrice.get(l.sku) ?? 0),
+              daysBetween(s.shippedOn!, today),
+              [l.sku],
+              `Lot ${l.lotId} shipped ${when}.`,
+            );
           }
         }
       }
@@ -188,8 +209,13 @@ export function reconcile(input: ReconInput): ReconException[] {
       for (const inv of invoices) {
         const key = linesKey(inv.lines);
         if (seen.has(key)) {
-          add("DUPLICATE_INVOICE", total(inv.lines), daysBetween(inv.invoicedOn, today), inv.lines.map((l) => l.sku),
-            `${inv.invoiceId} repeats an earlier invoice line for line.`);
+          add(
+            "DUPLICATE_INVOICE",
+            total(inv.lines),
+            daysBetween(inv.invoicedOn, today),
+            inv.lines.map((l) => l.sku),
+            `${inv.invoiceId} repeats an earlier invoice line for line.`,
+          );
         }
         seen.add(key);
       }

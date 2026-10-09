@@ -210,7 +210,7 @@ type PlannedExpiry = "expired" | "critical" | "warning" | "ok";
 function generateLots(sites: Site[], today: string, rng: Rng, catalog: Record<string, LotRecord>): void {
   const used = new Set<string>();
   const newLotId = (receivedOn: string) => {
-    let id = "";
+    let id: string;
     do {
       const letter = String.fromCharCode(65 + rng.int(0, 25));
       id = `L${receivedOn.slice(2, 4)}${letter}${rng.int(100, 999)}`;
@@ -257,11 +257,7 @@ function generateLots(sites: Site[], today: string, rng: Rng, catalog: Record<st
     const expiresOn = addDays(today, daysLeft);
     const receivedOn = addDays(expiresOn, -p.shelfLifeDays);
     const qty =
-      p.category === "Injectable"
-        ? rng.int(4, 36) * 10
-        : p.category === "Device Kit"
-          ? rng.int(2, 24) * 10
-          : rng.int(20, 200) * 12;
+      p.category === "Injectable" ? rng.int(4, 36) * 10 : p.category === "Device Kit" ? rng.int(2, 24) * 10 : rng.int(20, 200) * 12;
     const lot: Lot = { lotId: newLotId(receivedOn), sku, qty, receivedOn, expiresOn, bayId: bay.id };
     catalog[lot.lotId] = { lotId: lot.lotId, sku, receivedOn, expiresOn };
     return lot;
