@@ -60,15 +60,21 @@ Useful URL flags: `?seed=7` (different world), `?speed=0|1|5|20`, `?view=2d`, `?
 
 Keyboard: `Ctrl/Cmd + K` opens the command palette to jump to any site, truck, dock, temperature-controlled room, lot, order or alert.
 
-## Showing it (local only, do not publish)
+## Showing and hosting it
 
-Do not publish this version to a public URL. A public link that carries the company's name should not be shared. It is meant to be shown from your own laptop or phone.
+**Locally**
 
-- **Laptop:** `npm run dev`, then open <http://localhost:5173>. For the production build: `npm run build && npm run preview`, then open <http://localhost:4173>.
-- **Your phone on the same Wi-Fi:** `npm run build && npm run preview -- --host`. Vite prints a `Network:` address such as `http://192.168.x.x:4173`; open it on your phone. If Windows Firewall asks, allow Node.js on private networks only. Stop the server when you are done.
+- **Laptop:** `npm run dev`, then open <http://localhost:5173>. For the faster production build: `npm run build && npm run preview`, then open <http://localhost:4173>.
+- **Your phone on the same Wi-Fi:** `npm run build && npm run preview -- --host`, then open the printed `Network:` address (for example `http://192.168.x.x:4173`). If Windows Firewall asks, allow Node.js on private networks only.
 - **Offline backup:** play `docs/demo.webm`.
 
-The page carries `noindex, nofollow`, and the deploy configs for public hosting were removed from this version.
+**On Netlify** (config in `netlify.toml`: build `npm run build`, publish `dist`, Node 22)
+
+1. In Netlify: **Add new site → Import an existing project → GitHub**, and pick this repository. If it's private, grant the Netlify GitHub app access to it.
+2. Netlify reads `netlify.toml`, so the defaults are already right. Click **Deploy**.
+3. Optional: add password protection under **Site configuration → Access control** (paid plans) before sharing.
+
+Because the app carries a company's name, share the Netlify link only with people you choose. The site sends `noindex, nofollow` (meta tag and `X-Robots-Tag` header) so search engines don't list it.
 
 ## Architecture
 
