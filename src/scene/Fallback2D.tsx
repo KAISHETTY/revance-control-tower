@@ -15,10 +15,12 @@ interface ClickableProps {
   objRef: ObjectRef;
   label: string;
   children: ReactNode;
+  /** Drawn beside the clickable group, e.g. an animated alert pulse. */
+  overlay?: ReactNode;
 }
 
 /** An SVG group that behaves like a button for mouse, touch and keyboard. */
-function Clickable({ objRef, label, children }: ClickableProps) {
+function Clickable({ objRef, label, children, overlay }: ClickableProps) {
   const select = useWorld((s) => s.select);
   const selected = useWorld((s) => s.selection?.kind === objRef.kind && s.selection.id === objRef.id);
   const onKey = (e: KeyboardEvent) => {
@@ -28,22 +30,25 @@ function Clickable({ objRef, label, children }: ClickableProps) {
     }
   };
   return (
-    <g
-      role="button"
-      tabIndex={0}
-      aria-label={label}
-      aria-pressed={selected}
-      data-testid={`obj-${objRef.kind}-${objRef.id}`}
-      onClick={(e) => {
-        e.stopPropagation();
-        select(objRef);
-      }}
-      onKeyDown={onKey}
-      className="cursor-pointer outline-none [&:focus-visible>*:first-child]:stroke-[var(--accent)]"
-      style={{ filter: selected ? "drop-shadow(0 0 0.6px var(--accent))" : undefined }}
-    >
-      {children}
-    </g>
+    <>
+      <g
+        role="button"
+        tabIndex={0}
+        aria-label={label}
+        aria-pressed={selected}
+        data-testid={`obj-${objRef.kind}-${objRef.id}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          select(objRef);
+        }}
+        onKeyDown={onKey}
+        className="cursor-pointer outline-none [&:focus-visible>*:first-child]:stroke-[var(--accent)]"
+        style={{ filter: selected ? "drop-shadow(0 0 0.6px var(--accent))" : undefined }}
+      >
+        {children}
+      </g>
+      {overlay}
+    </>
   );
 }
 
@@ -117,7 +122,14 @@ function SiteDetail({ site, world, alerts, light }: { site: Site; world: World; 
         const c = lay.coldRooms[r.id];
         const a = alerts.get(r.id);
         return (
-          <Clickable key={r.id} objRef={{ kind: "coldRoom", id: r.id }} label={`${r.label}, ${r.currentC.toFixed(1)} degrees, ${r.status}`}>
+          <Clickable
+            key={r.id}
+            objRef={{ kind: "coldRoom", id: r.id }}
+            label={`${r.label}, ${r.currentC.toFixed(1)} degrees, ${r.status}`}
+            overlay={
+              a ? <Pulse at={{ x: c.center.x + c.w / 2 - 0.9, z: c.center.z - c.d / 2 + 0.9 }} color={SEV_COLOR[a.severity]} /> : null
+            }
+          >
             <rect
               x={c.center.x - c.w / 2}
               y={c.center.z - c.d / 2}
@@ -149,7 +161,6 @@ function SiteDetail({ site, world, alerts, light }: { site: Site; world: World; 
             >
               {r.currentC.toFixed(1)}°C
             </text>
-            {a ? <Pulse at={{ x: c.center.x + c.w / 2 - 0.9, z: c.center.z - c.d / 2 + 0.9 }} color={SEV_COLOR[a.severity]} /> : null}
           </Clickable>
         );
       })}
@@ -161,7 +172,12 @@ function SiteDetail({ site, world, alerts, light }: { site: Site; world: World; 
         const fill = b.lots.length ? EXPIRY_COLORS[status] : pal.island;
         const a = alerts.get(b.id);
         return (
-          <Clickable key={b.id} objRef={{ kind: "bay", id: b.id }} label={`Bay ${b.label}, ${b.lots.length} lots, ${status}`}>
+          <Clickable
+            key={b.id}
+            objRef={{ kind: "bay", id: b.id }}
+            label={`Bay ${b.label}, ${b.lots.length} lots, ${status}`}
+            overlay={a ? <Pulse at={{ x: p.x + BAY_W / 2, z: p.z - BAY_D / 2 }} color={SEV_COLOR[a.severity]} r={1.1} /> : null}
+          >
             <rect
               x={p.x - BAY_W / 2}
               y={p.z - BAY_D / 2}
@@ -176,7 +192,6 @@ function SiteDetail({ site, world, alerts, light }: { site: Site; world: World; 
             <text x={p.x} y={p.z - BAY_D / 2 - 0.35} fontSize={0.75} textAnchor="middle" fill={sub}>
               {b.label}
             </text>
-            {a ? <Pulse at={{ x: p.x + BAY_W / 2, z: p.z - BAY_D / 2 }} color={SEV_COLOR[a.severity]} r={1.1} /> : null}
           </Clickable>
         );
       })}
@@ -198,12 +213,16 @@ function SiteDetail({ site, world, alerts, light }: { site: Site; world: World; 
         const dl = lay.docks[d.id];
         const a = alerts.get(d.id);
         return (
-          <Clickable key={d.id} objRef={{ kind: "dock", id: d.id }} label={`${d.label}, ${d.type}, ${d.status}`}>
+          <Clickable
+            key={d.id}
+            objRef={{ kind: "dock", id: d.id }}
+            label={`${d.label}, ${d.type}, ${d.status}`}
+            overlay={a ? <Pulse at={{ x: dl.pad.x + 1.6, z: dl.pad.z }} color={SEV_COLOR[a.severity]} r={1.1} /> : null}
+          >
             <rect x={dl.pad.x - 1.6} y={dl.pad.z - 0.9} width={3.2} height={1.8} fill={DOCK_COLORS[d.status]} fillOpacity={0.85} rx={0.2} />
             <text x={dl.pad.x} y={dl.door.z - 0.6} fontSize={0.8} textAnchor="middle" fill={sub}>
               {d.label.replace("Dock ", "D")} {d.type === "inbound" ? "IN" : "OUT"}
             </text>
-            {a ? <Pulse at={{ x: dl.pad.x + 1.6, z: dl.pad.z }} color={SEV_COLOR[a.severity]} r={1.1} /> : null}
           </Clickable>
         );
       })}
@@ -222,9 +241,9 @@ function SiteDetail({ site, world, alerts, light }: { site: Site; world: World; 
             key={f.id}
             objRef={{ kind: "forklift", id: f.id }}
             label={`Forklift ${f.id}, ${f.status}, battery ${Math.round(f.battery)} percent`}
+            overlay={a ? <Pulse at={{ x: p.x, z: p.z - 1 }} color={SEV_COLOR[a.severity]} r={0.9} /> : null}
           >
             <circle cx={p.x} cy={p.z} r={0.75} fill={FORKLIFT_COLOR} stroke="#713f12" strokeWidth={0.15} />
-            {a ? <Pulse at={{ x: p.x, z: p.z - 1 }} color={SEV_COLOR[a.severity]} r={0.9} /> : null}
           </Clickable>
         );
       })}
@@ -250,11 +269,14 @@ function TruckMark({
   const a = alerts.get(t.id);
   const color = t.kind === "reefer" ? "#0284c7" : "#475569";
   return (
-    <Clickable objRef={{ kind: "truck", id: t.id }} label={`Truck ${t.id}, ${t.kind}, ${t.status}`}>
+    <Clickable
+      objRef={{ kind: "truck", id: t.id }}
+      label={`Truck ${t.id}, ${t.kind}, ${t.status}`}
+      overlay={a ? <Pulse at={{ x: p.x, z: p.z - 3 * scale }} color={SEV_COLOR[a.severity]} r={1.4 * scale} /> : null}
+    >
       <g transform={`translate(${p.x} ${p.z}) rotate(${-p.rot * DEG}) scale(${scale})`}>
         <TruckGlyph length={TRUCK_LENGTH} reefer={t.kind === "reefer"} color={color} stroke="#0f172a" />
       </g>
-      {a ? <Pulse at={{ x: p.x, z: p.z - 3 * scale }} color={SEV_COLOR[a.severity]} r={1.4 * scale} /> : null}
     </Clickable>
   );
 }

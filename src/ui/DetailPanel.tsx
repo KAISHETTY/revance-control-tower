@@ -1,6 +1,6 @@
 import { AnimatePresence, m } from "framer-motion";
-import { BatteryCharging, Lightbulb, MapPin, Thermometer, X } from "lucide-react";
-import { lazy, Suspense, type ReactNode } from "react";
+import { BatteryCharging, Lightbulb, MapPin, X } from "lucide-react";
+import { lazy, Suspense, useEffect, type ReactNode } from "react";
 import { toast } from "sonner";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
@@ -222,7 +222,6 @@ function Body({ r, world }: { r: Resolved; world: World }) {
             {t.kind === "reefer" && t.tempC !== undefined && t.setpointC !== undefined ? (
               <Row label="Box temperature">
                 <span className="inline-flex items-center gap-1.5" data-testid="truck-temp">
-                  <Thermometer className="h-3.5 w-3.5 text-muted" aria-hidden />
                   {describeTemp(t.tempC, t.setpointC)}
                   <Badge tone={COLD_TONE[t.tempStatus ?? "ok"]}>{COLD_LABEL[t.tempStatus ?? "ok"]}</Badge>
                 </span>
@@ -485,6 +484,12 @@ function DetailContent({ selection }: { selection: ObjectRef }) {
 export function DetailPanel() {
   const selection = useWorld((s) => s.selection);
   const select = useWorld((s) => s.select);
+  // On small screens the map scrolls with the page; bring it into view so the fly-to is visible above the sheet.
+  useEffect(() => {
+    if (!selection || window.matchMedia("(min-width: 1024px)").matches) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.getElementById("map")?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  }, [selection]);
   return (
     <AnimatePresence>
       {selection ? (
@@ -497,7 +502,7 @@ export function DetailPanel() {
           aria-label="Details"
           data-testid="detail-panel"
           className={cn(
-            "scrollbar-thin fixed inset-x-0 bottom-0 z-30 max-h-[62dvh] overflow-y-auto rounded-t-2xl border-t border-line bg-panel/95 p-4 shadow-2xl backdrop-blur",
+            "scrollbar-thin fixed inset-x-0 bottom-0 z-30 max-h-[50dvh] overflow-y-auto rounded-t-2xl border-t border-line bg-panel/95 p-4 shadow-2xl backdrop-blur",
             "lg:absolute lg:inset-x-auto lg:bottom-3 lg:left-3 lg:max-h-[calc(100%-1.5rem)] lg:w-[360px] lg:rounded-xl lg:border",
           )}
         >

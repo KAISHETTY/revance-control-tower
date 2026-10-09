@@ -133,8 +133,9 @@ export default function App() {
             <KpiStrip />
             <main className="flex flex-1 flex-col gap-3 px-3 pb-3 sm:px-4 lg:min-h-0 lg:flex-row">
               <section
+                id="map"
                 aria-label="Map"
-                className="relative h-[54dvh] min-h-[320px] overflow-hidden rounded-xl border border-line lg:h-auto lg:min-h-0 lg:flex-1"
+                className="relative h-[54dvh] min-h-[320px] scroll-mt-2 overflow-hidden rounded-xl border border-line lg:h-auto lg:min-h-0 lg:flex-1"
               >
                 <Viewport />
                 <DetailPanel />
