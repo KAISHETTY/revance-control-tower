@@ -1,9 +1,10 @@
-import { Instance, Outlines } from "@react-three/drei";
+import { Outlines } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import type { Group } from "three";
 import type { Truck } from "../sim/types";
 import { CARRIER_COLORS } from "./colors";
+import { Box, Wheel } from "./instances";
 import { ACCENT, UNIT_BOX, angleDelta, stdMat, useInteractive } from "./interactive";
 import type { Pose } from "./layout";
 
@@ -25,8 +26,8 @@ interface Props {
 
 /**
  * Low-poly truck facing +z: cab in front, trailer behind. Reefers have a white
- * box with a blue refrigeration unit on the front. Wheels are instanced by the
- * parent <Instances>.
+ * box with a blue refrigeration unit on the front. Trailer and cab are real
+ * meshes (for outlines); the small parts are shared instances.
  */
 export function Truck3D({ truck, pose, scale, reducedMotion }: Props) {
   const group = useRef<Group>(null);
@@ -57,7 +58,6 @@ export function Truck3D({ truck, pose, scale, reducedMotion }: Props) {
 
   return (
     <group ref={group} {...handlers} name={truck.id}>
-      {/* Trailer */}
       <mesh
         geometry={UNIT_BOX}
         material={stdMat(reefer ? "#f4f7fb" : "#d4dae3", { roughness: 0.55 })}
@@ -68,20 +68,6 @@ export function Truck3D({ truck, pose, scale, reducedMotion }: Props) {
       >
         {highlighted ? <Outlines thickness={0.06} color={ACCENT} screenspace={false} /> : null}
       </mesh>
-      {/* Carrier stripe */}
-      <mesh geometry={UNIT_BOX} material={stdMat(cab)} position={[0, 1.15, -0.9]} scale={[2.42, 0.22, 6.2]} />
-      {reefer ? (
-        <mesh
-          geometry={UNIT_BOX}
-          material={stdMat("#0ea5e9", { roughness: 0.4, metalness: 0.2 })}
-          position={[0, 2.55, 2.45]}
-          scale={[1.9, 1.3, 0.35]}
-          castShadow
-        />
-      ) : null}
-      {/* Chassis */}
-      <mesh geometry={UNIT_BOX} material={stdMat("#1f2937")} position={[0, 0.55, 0.2]} scale={[2.0, 0.3, 8.4]} />
-      {/* Cab */}
       <mesh
         geometry={UNIT_BOX}
         material={stdMat(cab, { roughness: 0.45, metalness: 0.15 })}
@@ -91,15 +77,12 @@ export function Truck3D({ truck, pose, scale, reducedMotion }: Props) {
       >
         {highlighted ? <Outlines thickness={0.06} color={ACCENT} screenspace={false} /> : null}
       </mesh>
-      {/* Windshield */}
-      <mesh
-        geometry={UNIT_BOX}
-        material={stdMat("#0b1220", { roughness: 0.15, metalness: 0.4 })}
-        position={[0, 1.95, 4.31]}
-        scale={[2.0, 0.75, 0.04]}
-      />
+      <Box position={[0, 1.15, -0.9]} scale={[2.42, 0.22, 6.2]} color={cab} />
+      {reefer ? <Box position={[0, 2.55, 2.45]} scale={[1.9, 1.3, 0.35]} color="#0ea5e9" /> : null}
+      <Box position={[0, 0.55, 0.2]} scale={[2.0, 0.3, 8.4]} color="#1f2937" />
+      <Box position={[0, 1.95, 4.31]} scale={[2.0, 0.75, 0.04]} color="#0b1220" />
       {WHEELS.map(([x, z], i) => (
-        <Instance key={i} position={[x, 0.45, z]} />
+        <Wheel key={i} position={[x, 0.45, z]} />
       ))}
     </group>
   );

@@ -1,4 +1,3 @@
-import { Instances } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
@@ -10,7 +9,8 @@ import type { ObjectKind, World } from "../sim/types";
 import { CameraRig } from "./CameraRig";
 import { SCENE_DARK, SCENE_LIGHT } from "./colors";
 import { Ground } from "./Ground";
-import { WHEEL_GEO, stdMat } from "./interactive";
+import { BOX_MATERIAL, BoxInstances, GLOW_MATERIAL, GlowInstances, WHEEL_MATERIAL, WheelInstances } from "./instances";
+import { UNIT_BOX, WHEEL_GEO } from "./interactive";
 import { anchorFor } from "./anchors";
 import { AlertMarkers } from "./Labels";
 import { LabelProjector, ScreenLabels } from "./ScreenLabels";
@@ -84,10 +84,12 @@ function PerfMonitor({ active }: { active: boolean }) {
   useEffect(() => {
     window_.current = { elapsed: 0, frames: 0, total: 0 };
   }, [lowGraphics, active]);
-  useFrame((_, dt) => {
+  useFrame((state, dt) => {
     const ms = dt * 1000;
     const perf = (window.__cctPerf ??= { samples: [] });
     perf.samples.push(ms);
+    perf.calls = state.gl.info.render.calls;
+    perf.triangles = state.gl.info.render.triangles;
     if (perf.samples.length > 900) perf.samples.shift();
     if (!enabled || !active) return;
     const w = window_.current;
@@ -135,7 +137,7 @@ function SceneBridge() {
 declare global {
   interface Window {
     __cctScene?: { project: (kind: ObjectKind, id: string) => { x: number; y: number } | null };
-    __cctPerf?: { samples: number[] };
+    __cctPerf?: { samples: number[]; calls?: number; triangles?: number };
   }
 }
 
@@ -155,22 +157,26 @@ function World3D({ reducedMotion, mobile }: { reducedMotion: boolean; mobile: bo
     <>
       <color attach="background" args={[palette.background]} />
       {!low ? <fog attach="fog" args={[palette.fog, 380, 900]} /> : null}
-      <Lights focus={focus} shadows={!low} mapSize={mobile ? 1024 : 2048} light={theme === "light"} />
-      <Ground world={world} alerts={alerts} palette={palette} low={low} />
-      {world.sites.map((s) => (
-        <Site3D key={s.id} site={s} world={world} palette={palette} reducedMotion={reducedMotion} />
-      ))}
-      <Instances limit={trucks.length * 6 + 12} geometry={WHEEL_GEO} material={stdMat("#111827", { roughness: 0.9 })} castShadow>
-        {trucks.map(({ t, s }) => (
-          <Truck3D
-            key={t.id}
-            truck={t}
-            pose={truckPose(world, t, s)}
-            scale={t.location === "road" ? 1.7 : 1}
-            reducedMotion={reducedMotion}
-          />
-        ))}
-      </Instances>
+      <Lights focus={focus} shadows={!low} mapSize={mobile ? 1024 : 1536} light={theme === "light"} />
+      <BoxInstances limit={1200} geometry={UNIT_BOX} material={BOX_MATERIAL} castShadow receiveShadow>
+        <GlowInstances limit={200} geometry={UNIT_BOX} material={GLOW_MATERIAL}>
+          <WheelInstances limit={trucks.length * 6 + 12} geometry={WHEEL_GEO} material={WHEEL_MATERIAL} castShadow>
+            <Ground world={world} alerts={alerts} palette={palette} low={low} />
+            {world.sites.map((s) => (
+              <Site3D key={s.id} site={s} world={world} palette={palette} reducedMotion={reducedMotion} />
+            ))}
+            {trucks.map(({ t, s }) => (
+              <Truck3D
+                key={t.id}
+                truck={t}
+                pose={truckPose(world, t, s)}
+                scale={t.location === "road" ? 1.7 : 1}
+                reducedMotion={reducedMotion}
+              />
+            ))}
+          </WheelInstances>
+        </GlowInstances>
+      </BoxInstances>
       <AlertMarkers world={world} alerts={alerts} reducedMotion={reducedMotion} />
       <LabelProjector />
       <CameraRig focus={focus} nonce={nonce} reducedMotion={reducedMotion} />
@@ -178,7 +184,7 @@ function World3D({ reducedMotion, mobile }: { reducedMotion: boolean; mobile: bo
       <SceneBridge />
       {!low ? (
         <Suspense fallback={null}>
-          <Effects mobile={mobile} />
+          <Effects />
         </Suspense>
       ) : null}
       {DevTuning ? (

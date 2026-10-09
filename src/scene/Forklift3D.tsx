@@ -4,6 +4,7 @@ import { useRef } from "react";
 import type { Group } from "three";
 import type { Forklift } from "../sim/types";
 import { FORKLIFT_COLOR } from "./colors";
+import { Box, Glow } from "./instances";
 import { ACCENT, UNIT_BOX, angleDelta, stdMat, useInteractive } from "./interactive";
 import type { Pose } from "./layout";
 
@@ -43,20 +44,14 @@ export function Forklift3D({ forklift, pose, reducedMotion }: { forklift: Forkli
       >
         {highlighted ? <Outlines thickness={0.05} color={ACCENT} screenspace={false} /> : null}
       </mesh>
-      <mesh geometry={UNIT_BOX} material={stdMat("#1f2937")} position={[0, 0.55, -0.6]} scale={[0.9, 0.5, 0.3]} />
-      <mesh geometry={UNIT_BOX} material={stdMat("#111827")} position={[0, 1.45, -0.05]} scale={[0.9, 0.06, 0.9]} />
-      <mesh geometry={UNIT_BOX} material={stdMat("#111827")} position={[0.4, 1.1, -0.05]} scale={[0.05, 0.7, 0.05]} />
-      <mesh geometry={UNIT_BOX} material={stdMat("#111827")} position={[-0.4, 1.1, -0.05]} scale={[0.05, 0.7, 0.05]} />
-      <mesh geometry={UNIT_BOX} material={stdMat("#374151", { metalness: 0.5 })} position={[0, 1.0, 0.72]} scale={[0.7, 1.9, 0.08]} />
-      <mesh geometry={UNIT_BOX} material={stdMat("#9ca3af", { metalness: 0.6 })} position={[0.22, 0.12, 1.15]} scale={[0.1, 0.05, 0.85]} />
-      <mesh geometry={UNIT_BOX} material={stdMat("#9ca3af", { metalness: 0.6 })} position={[-0.22, 0.12, 1.15]} scale={[0.1, 0.05, 0.85]} />
-      {/* Battery lamp */}
-      <mesh
-        geometry={UNIT_BOX}
-        material={stdMat(low ? "#f43f5e" : "#22c55e", { emissive: low ? "#f43f5e" : "#22c55e", emissiveIntensity: 1.5 })}
-        position={[0, 1.52, -0.05]}
-        scale={[0.18, 0.08, 0.18]}
-      />
+      <Box position={[0, 0.55, -0.6]} scale={[0.9, 0.5, 0.3]} color="#1f2937" />
+      <Box position={[0, 1.45, -0.05]} scale={[0.9, 0.06, 0.9]} color="#111827" />
+      <Box position={[0.4, 1.1, -0.05]} scale={[0.05, 0.7, 0.05]} color="#111827" />
+      <Box position={[-0.4, 1.1, -0.05]} scale={[0.05, 0.7, 0.05]} color="#111827" />
+      <Box position={[0, 1.0, 0.72]} scale={[0.7, 1.9, 0.08]} color="#374151" />
+      <Box position={[0.22, 0.12, 1.15]} scale={[0.1, 0.05, 0.85]} color="#9ca3af" />
+      <Box position={[-0.22, 0.12, 1.15]} scale={[0.1, 0.05, 0.85]} color="#9ca3af" />
+      <Glow position={[0, 1.52, -0.05]} scale={[0.18, 0.08, 0.18]} color={low ? "#f43f5e" : "#22c55e"} />
     </group>
   );
 }

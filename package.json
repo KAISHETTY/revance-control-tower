@@ -12,11 +12,11 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "knip": "knip",
-    "e2e": "playwright test --headed",
+    "e2e": "cross-env PW_SLOWMO=150 playwright test --headed",
     "e2e:ci": "playwright test",
-    "e2e:media": "cross-env MEDIA=1 playwright test e2e/media.spec.ts --headed",
+    "e2e:media": "cross-env MEDIA=1 PW_WORKERS=1 playwright test e2e/media.spec.ts --headed",
     "analyze": "vite build --mode analyze",
-    "verify": "npm run lint && npm run typecheck && npm test && npm run build && npm run e2e:ci"
+    "verify": "npm run lint && npm run typecheck && npm test && npm run build && cross-env E2E_SKIP_BUILD=1 npm run e2e:ci"
   },
   "type": "module",
   "dependencies": {

@@ -7,6 +7,7 @@ import type { ObjectRef, Site, StockBay, World } from "../sim/types";
 import { resolveRef } from "../sim/lookup";
 import { useWorld } from "../store/useWorld";
 import { EXPIRY_COLORS } from "./colors";
+import { Box } from "./instances";
 import { ACCENT, UNIT_BOX, stdMat, useInteractive } from "./interactive";
 import { BAY_D, BAY_W, siteLayout } from "./layout";
 
@@ -152,17 +153,16 @@ function BayHitBox({ bay, x, z, today }: { bay: StockBay; x: number; z: number; 
   return (
     <group name={bay.id}>
       <mesh position={[x, h / 2, z]} scale={[BAY_W + 0.4, h, BAY_D + 0.4]} geometry={UNIT_BOX} {...handlers}>
-        <meshBasicMaterial transparent opacity={highlighted ? 0.12 : 0} depthWrite={false} color={ACCENT} />
+        {/* Invisible material keeps the hit box clickable without drawing it. */}
+        <meshBasicMaterial transparent opacity={0.12} depthWrite={false} color={ACCENT} visible={highlighted} />
         {highlighted ? <Edges color={ACCENT} /> : null}
       </mesh>
       {/* Floor marking under the bay */}
-      <mesh position={[x, 0.215, z]} scale={[BAY_W + 0.5, 0.01, BAY_D + 0.5]} geometry={UNIT_BOX} raycast={() => null}>
-        <meshStandardMaterial
-          color={quarantine ? "#f43f5e" : status === "expired" ? "#e5484d" : "#64748b"}
-          transparent
-          opacity={quarantine ? 0.55 : 0.25}
-        />
-      </mesh>
+      <Box
+        position={[x, 0.215, z]}
+        scale={[BAY_W + 0.5, 0.02, BAY_D + 0.5]}
+        color={quarantine ? "#9f1239" : status === "expired" ? "#7f1d1d" : "#3b475a"}
+      />
     </group>
   );
 }

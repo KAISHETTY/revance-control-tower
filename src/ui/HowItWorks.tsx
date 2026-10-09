@@ -18,7 +18,13 @@ const EXCEPTION_HELP: Record<(typeof EXCEPTION_TYPES)[number], string> = {
 
 export function HowItWorks() {
   return (
-    <div className="scrollbar-thin h-full overflow-y-auto px-4 py-3 text-sm leading-relaxed text-muted" data-testid="how-it-works">
+    <div
+      className="scrollbar-thin h-full overflow-y-auto px-4 py-3 text-sm leading-relaxed text-muted"
+      data-testid="how-it-works"
+      tabIndex={0}
+      role="region"
+      aria-label="How it works"
+    >
       <p className="text-fg">
         This is a working prototype of a supply-chain control tower for a cold-chain business: injectables that must stay at 2–8°C, device
         kits and skincare, moving through three sites to practices, retailers and web customers.

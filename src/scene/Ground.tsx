@@ -4,7 +4,8 @@ import type { Alert } from "../engine/alerts";
 import type { World } from "../sim/types";
 import { HEALTH_COLORS, type ScenePalette } from "./colors";
 import { siteHealth } from "./health";
-import { UNIT_BOX, stdMat, useInteractive } from "./interactive";
+import { Box } from "./instances";
+import { useInteractive } from "./interactive";
 import { siteLayout, type Vec2 } from "./layout";
 
 function Road({ a, b, palette }: { a: Vec2; b: Vec2; palette: ScenePalette }) {
@@ -15,23 +16,9 @@ function Road({ a, b, palette }: { a: Vec2; b: Vec2; palette: ScenePalette }) {
   const dashes = Math.floor(len / 6);
   return (
     <group position={[(a.x + b.x) / 2, 0, (a.z + b.z) / 2]} rotation={[0, rot, 0]}>
-      <mesh
-        scale={[4.4, 0.1, len]}
-        geometry={UNIT_BOX}
-        material={stdMat(palette.road, { roughness: 0.95 })}
-        receiveShadow
-        position={[0, -0.04, 0]}
-        raycast={() => null}
-      />
+      <Box scale={[4.4, 0.1, len]} position={[0, -0.04, 0]} color={palette.road} />
       {Array.from({ length: dashes }, (_, i) => (
-        <mesh
-          key={i}
-          scale={[0.18, 0.01, 2.4]}
-          position={[0, 0.03, -len / 2 + 3 + i * 6]}
-          geometry={UNIT_BOX}
-          material={stdMat(palette.roadLine, { emissive: palette.roadLine, emissiveIntensity: 0.15 })}
-          raycast={() => null}
-        />
+        <Box key={i} scale={[0.18, 0.02, 2.4]} position={[0, 0.03, -len / 2 + 3 + i * 6]} color={palette.roadLine} />
       ))}
     </group>
   );
