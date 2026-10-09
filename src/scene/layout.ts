@@ -19,9 +19,9 @@ export interface Pose extends Vec2 {
 }
 
 export const SITE_ORIGINS: Record<SiteId, Vec2> = {
-  WEST: { x: -88, z: 22 },
+  WEST: { x: -108, z: 26 },
   NASH: { x: 0, z: 0 },
-  JCTY: { x: 80, z: -30 },
+  JCTY: { x: 104, z: -36 },
 };
 
 export const DOCK_SPACING = 4.2;
@@ -122,7 +122,7 @@ export function siteLayout(site: Site): SiteLayout {
   const yard: Vec2[] = [];
   for (let k = 0; k < 6; k++) yard.push(add(o, -width / 2 + 3 + k * 4.4, front + 17));
 
-  const radius = Math.hypot(width / 2, depth / 2) + 14;
+  const radius = Math.hypot(width / 2 + 8, front + 26) + 3;
   const gates = {} as SiteLayout["gates"];
   for (const other of SITE_IDS) {
     if (other === site.id) continue;
@@ -220,12 +220,12 @@ export interface Focus extends Vec2 {
 }
 
 export function networkFocus(): Focus {
-  return { x: -4, z: -2, distance: 205 };
+  return { x: -2, z: -2, distance: 300 };
 }
 
 export function siteFocus(site: Site): Focus {
   const lay = siteLayout(site);
-  return { x: lay.origin.x, z: lay.origin.z + 6, distance: Math.max(52, lay.width * 1.45) };
+  return { x: lay.origin.x, z: lay.origin.z + 6, distance: Math.max(58, lay.width * 1.55) };
 }
 
 /** Camera focus for any object reference; falls back to the object's site. */
@@ -239,19 +239,19 @@ export function focusFor(world: World, ref: ObjectRef): Focus | undefined {
     case "site":
       return siteFocus(r.site);
     case "dock":
-      return { ...lay.docks[r.dock.id].pad, distance: 26 };
+      return { ...lay.docks[r.dock.id].pad, distance: 36 };
     case "truck": {
       const p = truckPose(world, r.truck, r.site);
-      return { x: p.x, z: p.z, distance: r.truck.location === "road" ? 48 : 26 };
+      return { x: p.x, z: p.z, distance: r.truck.location === "road" ? 60 : 36 };
     }
     case "forklift": {
       const p = forkliftPose(r.site, r.forklift);
-      return { x: p.x, z: p.z, distance: 20 };
+      return { x: p.x, z: p.z, distance: 28 };
     }
     case "bay":
-      return { ...lay.bays[r.bay.id].pos, distance: 20 };
+      return { ...lay.bays[r.bay.id].pos, distance: 30 };
     case "coldRoom":
-      return { ...lay.coldRooms[r.room.id].center, distance: 24 };
+      return { ...lay.coldRooms[r.room.id].center, distance: 34 };
     default:
       return siteFocus(r.site);
   }

@@ -276,7 +276,7 @@ export default function Fallback2D() {
 
   let viewBox: string;
   if (view === "network") {
-    viewBox = "-135 -75 255 160";
+    viewBox = "-162 -100 322 205";
   } else {
     const lay = siteLayout(world.sites.find((s) => s.id === view)!);
     const x0 = lay.origin.x - lay.width / 2 - 4;
