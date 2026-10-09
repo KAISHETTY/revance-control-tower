@@ -22,7 +22,7 @@ const HowItWorks = lazy(() => import("./ui/HowItWorks").then((m) => ({ default: 
 const WhyThis = lazy(() => import("./ui/WhyThis").then((m) => ({ default: m.WhyThis })));
 const CommandPalette = lazy(() => import("./ui/CommandPalette"));
 
-const TICK_MS = 250;
+const TICK_MS = 500;
 
 function PanelFallback() {
   return <div className="skeleton m-3 h-40 rounded-lg" aria-label="Loading" />;
@@ -151,7 +151,7 @@ export default function App() {
                 aria-label="Alerts, orders and lots"
                 className={cn(
                   "flex h-[78dvh] min-h-0 flex-col overflow-hidden rounded-xl border border-line bg-panel lg:h-auto",
-                  tab === "orders" ? "lg:w-[600px] xl:w-[640px]" : "lg:w-[380px] xl:w-[420px]",
+                  tab === "orders" ? "lg:w-[600px] xl:w-[640px]" : "lg:w-[410px] xl:w-[440px]",
                 )}
               >
                 <SidePanel />

@@ -123,15 +123,16 @@ export function siteLayout(site: Site): SiteLayout {
   for (let k = 0; k < 6; k++) yard.push(add(o, -width / 2 + 3 + k * 4.4, front + 17));
 
   const radius = Math.hypot(width / 2 + 8, front + 26) + 3;
+  // Road endpoints sit on the open apron in front of the docks (left or right corner toward the other
+  // site, center for the outside world), so trucks never drive through the building.
   const gates = {} as SiteLayout["gates"];
   for (const other of SITE_IDS) {
     if (other === site.id) continue;
-    const t = SITE_ORIGINS[other];
-    const len = Math.hypot(t.x - o.x, t.z - o.z);
-    gates[other] = add(o, ((t.x - o.x) / len) * radius, ((t.z - o.z) / len) * radius);
+    const side = SITE_ORIGINS[other].x < o.x ? -1 : 1;
+    gates[other] = add(o, side * (width / 2 + 9), front + 21);
   }
-  gates.EXT = add(o, width / 2 + 6, front + 22);
-  const extFar = add(o, width / 2 + 22, front + 60);
+  gates.EXT = add(o, 0, front + 26);
+  const extFar = add(o, 10, front + 70);
 
   const layout: SiteLayout = {
     origin: o,

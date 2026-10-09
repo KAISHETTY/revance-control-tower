@@ -1,4 +1,5 @@
 import { Edges } from "@react-three/drei";
+import { memo } from "react";
 import type { ColdRoom, Site, World } from "../sim/types";
 import { COLD_COLORS, type ScenePalette } from "./colors";
 import { Dock3D } from "./Dock3D";
@@ -10,27 +11,30 @@ import { StockBays } from "./StockBay3D";
 
 const COLD_H = 3.0;
 
-function ColdRoom3D({ room, lay }: { room: ColdRoom; lay: SiteLayout }) {
-  const { handlers, highlighted } = useInteractive({ kind: "coldRoom", id: room.id });
-  const c = lay.coldRooms[room.id];
-  const edge = highlighted ? ACCENT : COLD_COLORS[room.status];
-  const unitX = c.center.x + c.w / 2 - 1.3;
-  const unitZ = c.center.z - c.d / 2 + 1;
-  return (
-    <group name={room.id}>
-      <mesh position={[c.center.x, 0.2 + COLD_H / 2, c.center.z]} scale={[c.w, COLD_H, c.d]} geometry={UNIT_BOX} {...handlers}>
-        <meshStandardMaterial color="#7dd3fc" transparent opacity={highlighted ? 0.26 : 0.16} depthWrite={false} roughness={0.2} />
-        <Edges color={edge} />
-      </mesh>
-      {/* Refrigeration unit and status lamp on top; tinted floor inside */}
-      <Box position={[unitX, 0.2 + COLD_H + 0.35, unitZ]} scale={[1.8, 0.7, 1.2]} color="#cbd5e1" />
-      <Glow position={[unitX, 0.2 + COLD_H + 0.72, unitZ]} scale={[0.9, 0.04, 0.9]} color={COLD_COLORS[room.status]} />
-      <Box position={[c.center.x, 0.21, c.center.z]} scale={[c.w - 0.2, 0.02, c.d - 0.2]} color="#1e4f6e" />
-    </group>
-  );
-}
+const ColdRoom3D = memo(
+  function ColdRoom3D({ room, lay }: { room: ColdRoom; lay: SiteLayout }) {
+    const { handlers, highlighted } = useInteractive({ kind: "coldRoom", id: room.id });
+    const c = lay.coldRooms[room.id];
+    const edge = highlighted ? ACCENT : COLD_COLORS[room.status];
+    const unitX = c.center.x + c.w / 2 - 1.3;
+    const unitZ = c.center.z - c.d / 2 + 1;
+    return (
+      <group name={room.id}>
+        <mesh position={[c.center.x, 0.2 + COLD_H / 2, c.center.z]} scale={[c.w, COLD_H, c.d]} geometry={UNIT_BOX} {...handlers}>
+          <meshStandardMaterial color="#7dd3fc" transparent opacity={highlighted ? 0.26 : 0.16} depthWrite={false} roughness={0.2} />
+          <Edges color={edge} />
+        </mesh>
+        {/* Refrigeration unit and status lamp on top; tinted floor inside */}
+        <Box position={[unitX, 0.2 + COLD_H + 0.35, unitZ]} scale={[1.8, 0.7, 1.2]} color="#cbd5e1" />
+        <Glow position={[unitX, 0.2 + COLD_H + 0.72, unitZ]} scale={[0.9, 0.04, 0.9]} color={COLD_COLORS[room.status]} />
+        <Box position={[c.center.x, 0.21, c.center.z]} scale={[c.w - 0.2, 0.02, c.d - 0.2]} color="#1e4f6e" />
+      </group>
+    );
+  },
+  (a, b) => a.lay === b.lay && a.room.status === b.room.status && a.room.id === b.room.id,
+);
 
-function Building({ lay, palette }: { lay: SiteLayout; palette: ScenePalette }) {
+const Building = memo(function Building({ lay, palette }: { lay: SiteLayout; palette: ScenePalette }) {
   const { origin: o, width: w, depth: d } = lay;
   const t = 0.3;
   const low = 1.1;
@@ -57,7 +61,7 @@ function Building({ lay, palette }: { lay: SiteLayout; palette: ScenePalette }) 
       <Glow position={[lay.charger.x - 0.18, 1.2, lay.charger.z]} scale={[0.05, 0.2, 0.3]} color="#22c55e" />
     </group>
   );
-}
+});
 
 export function Site3D({
   site,

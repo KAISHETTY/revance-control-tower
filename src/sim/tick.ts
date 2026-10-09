@@ -133,6 +133,22 @@ function assignDocks(site: Site, rng: Rng): void {
   }
 }
 
+/** Least-loaded other site (trucks assigned per usable dock); ties broken by the seeded RNG. */
+function pickDestination(world: World, from: Site["id"], rng: Rng): Site["id"] {
+  let best: Site["id"][] = [];
+  let bestLoad = Infinity;
+  for (const s of world.sites) {
+    if (s.id === from) continue;
+    const docks = s.docks.filter((d) => d.status !== "blocked").length || 1;
+    const load = Math.round((s.trucks.length / docks) * 100) / 100;
+    if (load < bestLoad) {
+      bestLoad = load;
+      best = [s.id];
+    } else if (load === bestLoad) best.push(s.id);
+  }
+  return best.length ? rng.pick(best) : rng.pick(SITE_IDS.filter((id) => id !== from));
+}
+
 function depart(world: World, site: Site, truck: Truck, rng: Rng): void {
   const dock = site.docks.find((d) => d.id === truck.dockId);
   if (dock) {
@@ -146,7 +162,7 @@ function depart(world: World, site: Site, truck: Truck, rng: Rng): void {
       endedAtMinute: world.clockMinutes,
     });
   }
-  const dest = rng.pick(SITE_IDS.filter((id) => id !== site.id));
+  const dest = pickDestination(world, site.id, rng);
   truck.lastDockId = truck.dockId;
   truck.dockId = undefined;
   truck.status = "departed";

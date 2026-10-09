@@ -1,5 +1,5 @@
 import { Grid } from "@react-three/drei";
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import type { Alert } from "../engine/alerts";
 import type { World } from "../sim/types";
 import { HEALTH_COLORS, type ScenePalette } from "./colors";
@@ -50,58 +50,64 @@ function Island({
       </mesh>
       {showRing ? (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.12, 0]} raycast={() => null}>
-          <ringGeometry args={[lay.radius - 0.9, lay.radius - 0.2, 96]} />
-          <meshBasicMaterial color={ring} toneMapped={false} transparent opacity={0.9} />
+          <ringGeometry args={[lay.radius - 2.6, lay.radius - 0.4, 128]} />
+          <meshBasicMaterial color={ring} toneMapped={false} />
         </mesh>
       ) : null}
     </group>
   );
 }
 
-export function Ground({ world, alerts, palette, low }: { world: World; alerts: Alert[]; palette: ScenePalette; low: boolean }) {
-  const roads = useMemo(() => {
-    const out: [Vec2, Vec2][] = [];
-    const seen = new Set<string>();
-    for (const s of world.sites) {
-      const lay = siteLayout(s);
-      out.push([lay.gates.EXT, lay.extFar]);
-      for (const o of world.sites) {
-        const key = [s.id, o.id].sort().join();
-        if (o.id === s.id || seen.has(key)) continue;
-        seen.add(key);
-        out.push([lay.gates[o.id], siteLayout(o).gates[s.id]]);
+export const Ground = memo(
+  function Ground({ world, alerts, palette, low }: { world: World; alerts: Alert[]; palette: ScenePalette; low: boolean }) {
+    const roads = useMemo(() => {
+      const out: [Vec2, Vec2][] = [];
+      const seen = new Set<string>();
+      for (const s of world.sites) {
+        const lay = siteLayout(s);
+        out.push([lay.gates.EXT, lay.extFar]);
+        for (const o of world.sites) {
+          const key = [s.id, o.id].sort().join();
+          if (o.id === s.id || seen.has(key)) continue;
+          seen.add(key);
+          out.push([lay.gates[o.id], siteLayout(o).gates[s.id]]);
+        }
       }
-    }
-    return out;
-  }, [world.sites]);
+      return out;
+      // Site structure never changes, so roads are computed once.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [world.sites.length]);
 
-  return (
-    <group>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.34, 0]} receiveShadow raycast={() => null}>
-        <planeGeometry args={[1400, 1400]} />
-        <meshStandardMaterial color={palette.ground} roughness={1} />
-      </mesh>
-      {!low ? (
-        <Grid
-          position={[0, -0.3, 0]}
-          args={[800, 800]}
-          cellSize={5}
-          cellThickness={0.5}
-          cellColor={palette.islandEdge}
-          sectionSize={25}
-          sectionThickness={0.9}
-          sectionColor={palette.islandEdge}
-          fadeDistance={420}
-          fadeStrength={1.6}
-          infiniteGrid
-        />
-      ) : null}
-      {roads.map(([a, b], i) => (
-        <Road key={i} a={a} b={b} palette={palette} />
-      ))}
-      {world.sites.map((s) => (
-        <Island key={s.id} siteId={s.id} world={world} alerts={alerts} palette={palette} showRing />
-      ))}
-    </group>
-  );
-}
+    return (
+      <group>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.34, 0]} receiveShadow raycast={() => null}>
+          <planeGeometry args={[1400, 1400]} />
+          <meshStandardMaterial color={palette.ground} roughness={1} />
+        </mesh>
+        {!low ? (
+          <Grid
+            position={[0, -0.3, 0]}
+            args={[800, 800]}
+            cellSize={5}
+            cellThickness={0.5}
+            cellColor={palette.islandEdge}
+            sectionSize={25}
+            sectionThickness={0.9}
+            sectionColor={palette.islandEdge}
+            fadeDistance={420}
+            fadeStrength={1.6}
+            infiniteGrid
+          />
+        ) : null}
+        {roads.map(([a, b], i) => (
+          <Road key={i} a={a} b={b} palette={palette} />
+        ))}
+        {world.sites.map((s) => (
+          <Island key={s.id} siteId={s.id} world={world} alerts={alerts} palette={palette} showRing />
+        ))}
+      </group>
+    );
+  },
+  (a, b) =>
+    a.palette === b.palette && a.low === b.low && a.world.sites.every((s) => siteHealth(a.alerts, s.id) === siteHealth(b.alerts, s.id)),
+);

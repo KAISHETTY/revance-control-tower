@@ -16,14 +16,18 @@ import { siteLayout } from "./layout";
 interface Anchor {
   el: HTMLElement;
   pos: [number, number, number];
+  /** Cached element width, refreshed now and then (reading layout every frame would stall). */
+  w: number;
 }
+
+let frame = 0;
 
 const anchors = new Map<string, Anchor>();
 const v = new Vector3();
 
 function register(id: string, pos: [number, number, number]) {
   return (el: HTMLElement | null) => {
-    if (el) anchors.set(id, { el, pos });
+    if (el) anchors.set(id, { el, pos, w: anchors.get(id)?.w ?? 0 });
     else anchors.delete(id);
   };
 }
@@ -32,12 +36,17 @@ function register(id: string, pos: [number, number, number]) {
 export function LabelProjector() {
   const { camera, size } = useThree();
   useFrame(() => {
-    for (const { el, pos } of anchors.values()) {
+    frame = (frame + 1) % 60;
+    if (frame === 0) for (const a of anchors.values()) a.w = a.el.offsetWidth;
+    for (const a of anchors.values()) if (!a.w) a.w = a.el.offsetWidth;
+    for (const { el, pos, w } of anchors.values()) {
       v.set(pos[0], pos[1], pos[2]).project(camera);
       const hidden = v.z > 1 || v.x < -1.2 || v.x > 1.2 || v.y < -1.2 || v.y > 1.2;
       el.style.visibility = hidden ? "hidden" : "visible";
       if (hidden) continue;
-      const x = ((v.x + 1) / 2) * size.width;
+      // Keep the whole label inside the map.
+      const half = w / 2 + 6;
+      const x = Math.min(size.width - half, Math.max(half, ((v.x + 1) / 2) * size.width));
       const y = ((1 - v.y) / 2) * size.height;
       el.style.transform = `translate(-50%, -50%) translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
     }
@@ -55,7 +64,7 @@ export function ScreenLabels() {
   const focused = view === "network" ? undefined : world.sites.find((s) => s.id === view);
 
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" role="group" aria-label="Map labels">
+    <div className="@container pointer-events-none absolute inset-0 overflow-hidden" role="group" aria-label="Map labels">
       {world.sites.map((s) => {
         if (view === s.id) return null;
         const lay = siteLayout(s);
@@ -75,7 +84,7 @@ export function ScreenLabels() {
           >
             <span className="h-2.5 w-2.5 rounded-full" style={{ background: HEALTH_COLORS[health] }} aria-hidden />
             <span className="font-semibold">{s.shortName}</span>
-            <span className="text-muted">
+            <span className="hidden text-muted @[560px]:inline">
               {count} alerts · {formatMoney(risk)}
             </span>
           </button>

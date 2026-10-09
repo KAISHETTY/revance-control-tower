@@ -69,7 +69,9 @@ export function deriveAlerts(world: World): Alert[] {
           "high",
           site.id,
           { kind: "coldRoom", id: room.id },
-          `${room.label} excursion at ${formatTemp(room.currentC)}`,
+          Math.abs(room.currentC - room.setpointC) >= 4
+            ? `${room.label} excursion at ${formatTemp(room.currentC)}`
+            : `${room.label} excursion not yet closed out (now ${formatTemp(room.currentC)})`,
           "Quarantine affected lots and call QA before release.",
         );
       } else if (room.status === "warning") {
@@ -91,7 +93,9 @@ export function deriveAlerts(world: World): Alert[] {
             "high",
             site.id,
             { kind: "truck", id: truck.id },
-            `${truck.id} temperature excursion at ${formatTemp(truck.tempC)}`,
+            truck.tempC - (truck.setpointC ?? truck.tempC) >= 4 || truck.tempC - (truck.setpointC ?? truck.tempC) <= -4
+              ? `${truck.id} temperature excursion at ${formatTemp(truck.tempC)}`
+              : `${truck.id} excursion not yet closed out (now ${formatTemp(truck.tempC)})`,
             "Hold the load, download the logger and get a QA disposition.",
           );
         } else if (truck.tempStatus === "warning") {

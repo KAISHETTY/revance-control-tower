@@ -28,26 +28,35 @@ export interface Kpis {
 /** Recent completed dock visits used for the dwell average. */
 const DWELL_SAMPLE = 50;
 
-/** Network KPIs, or one site's when `siteId` is given. */
-export function computeKpis(world: World, exceptions: readonly ReconException[], alerts: readonly Alert[], siteId?: SiteId): Kpis {
-  const inSite = (id: SiteId) => !siteId || id === siteId;
-  const sites = world.sites.filter((s) => inSite(s.id));
+interface OrderKpis {
+  onTimeDelivery: number;
+  deliveredShipments: number;
+  fillRate: number;
+  dollarsAtRisk: number;
+  ordersWithExceptions: number;
+  orderCount: number;
+  cleanOrderRate: number;
+}
 
+/**
+ * Order, shipment and exception figures only change when a new world is
+ * generated, not on every simulation tick, so they are cached per order set.
+ */
+const orderCache = new WeakMap<readonly unknown[], { exceptions: readonly ReconException[]; bySite: Map<string, OrderKpis> }>();
+
+function orderKpis(world: World, exceptions: readonly ReconException[], siteId?: SiteId): OrderKpis {
+  let entry = orderCache.get(world.orders);
+  if (!entry || entry.exceptions !== exceptions) {
+    entry = { exceptions, bySite: new Map() };
+    orderCache.set(world.orders, entry);
+  }
+  const key = siteId ?? "*";
+  const hit = entry.bySite.get(key);
+  if (hit) return hit;
+
+  const inSite = (id: SiteId) => !siteId || id === siteId;
   const delivered = world.shipments.filter((s) => s.deliveredOn && inSite(s.fromSite));
   const onTime = delivered.filter((s) => daysBetween(s.deliveredOn!, s.promisedBy) >= 0).length;
-
-  const visits = world.dockVisits.filter((v) => inSite(v.siteId)).slice(-DWELL_SAMPLE);
-  const avgDwell = visits.length ? visits.reduce((a, v) => a + v.dwellMinutes, 0) / visits.length : 0;
-
-  let occupied = 0;
-  let available = 0;
-  for (const s of sites) {
-    for (const d of s.docks) {
-      if (d.status === "blocked") continue;
-      available += 1;
-      if (d.status === "occupied") occupied += 1;
-    }
-  }
 
   const orderIds = new Set(world.orders.filter((o) => inSite(o.fulfillmentSite)).map((o) => o.orderId));
   const ordered = new Map<string, number>();
@@ -64,10 +73,43 @@ export function computeKpis(world: World, exceptions: readonly ReconException[],
   }
   let fillNum = 0;
   let fillDen = 0;
-  for (const [key, qty] of ordered) {
-    if (!shippedOrders.has(key.split("|")[0])) continue;
+  for (const [k, qty] of ordered) {
+    if (!shippedOrders.has(k.split("|")[0])) continue;
     fillDen += qty;
-    fillNum += Math.min(qty, shippedQty.get(key) ?? 0);
+    fillNum += Math.min(qty, shippedQty.get(k) ?? 0);
+  }
+
+  const exc = exceptions.filter((e) => inSite(e.siteId));
+  const badOrders = new Set(exc.map((e) => e.orderId));
+  const value: OrderKpis = {
+    onTimeDelivery: delivered.length ? onTime / delivered.length : 1,
+    deliveredShipments: delivered.length,
+    fillRate: fillDen ? fillNum / fillDen : 1,
+    dollarsAtRisk: Math.round(exc.reduce((a, e) => a + e.dollarImpact, 0) * 100) / 100,
+    ordersWithExceptions: badOrders.size,
+    orderCount: orderIds.size,
+    cleanOrderRate: orderIds.size ? (orderIds.size - badOrders.size) / orderIds.size : 1,
+  };
+  entry.bySite.set(key, value);
+  return value;
+}
+
+/** Network KPIs, or one site's when `siteId` is given. */
+export function computeKpis(world: World, exceptions: readonly ReconException[], alerts: readonly Alert[], siteId?: SiteId): Kpis {
+  const inSite = (id: SiteId) => !siteId || id === siteId;
+  const sites = world.sites.filter((s) => inSite(s.id));
+
+  const visits = world.dockVisits.filter((v) => inSite(v.siteId)).slice(-DWELL_SAMPLE);
+  const avgDwell = visits.length ? visits.reduce((a, v) => a + v.dwellMinutes, 0) / visits.length : 0;
+
+  let occupied = 0;
+  let available = 0;
+  for (const s of sites) {
+    for (const d of s.docks) {
+      if (d.status === "blocked") continue;
+      available += 1;
+      if (d.status === "occupied") occupied += 1;
+    }
   }
 
   const stockValueBySite = { NASH: 0, JCTY: 0, NWK: 0 } as Record<SiteId, number>;
@@ -87,23 +129,14 @@ export function computeKpis(world: World, exceptions: readonly ReconException[],
     }
   }
 
-  const exc = exceptions.filter((e) => inSite(e.siteId));
-  const badOrders = new Set(exc.map((e) => e.orderId));
-
   return {
-    onTimeDelivery: delivered.length ? onTime / delivered.length : 1,
-    deliveredShipments: delivered.length,
+    ...orderKpis(world, exceptions, siteId),
     avgDockDwellMinutes: avgDwell,
     dockUtilization: available ? occupied / available : 0,
     occupiedDocks: occupied,
     availableDocks: available,
-    fillRate: fillDen ? fillNum / fillDen : 1,
     stockValueBySite,
     totalStockValue: Object.values(stockValueBySite).reduce((a, b) => a + b, 0),
-    dollarsAtRisk: Math.round(exc.reduce((a, e) => a + e.dollarImpact, 0) * 100) / 100,
-    ordersWithExceptions: badOrders.size,
-    orderCount: orderIds.size,
-    cleanOrderRate: orderIds.size ? (orderIds.size - badOrders.size) / orderIds.size : 1,
     lotsExpiring30: lots30,
     lotsExpiring90: lots90,
     expiredLots: expired,

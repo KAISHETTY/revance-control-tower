@@ -5,7 +5,7 @@ import { Vector3, type DirectionalLight } from "three";
 import { usePrefersReducedMotion, useIsCoarsePointer } from "../lib/hooks";
 import { getAlerts } from "../store/derived";
 import { useWorld } from "../store/useWorld";
-import type { ObjectKind, World } from "../sim/types";
+import type { ObjectKind, Truck, World } from "../sim/types";
 import { CameraRig } from "./CameraRig";
 import { SCENE_DARK, SCENE_LIGHT } from "./colors";
 import { Ground } from "./Ground";
@@ -23,6 +23,13 @@ const DevTuning =
   import.meta.env.DEV && new URLSearchParams(window.location.search).get("leva") === "1" ? lazy(() => import("./DevTuning")) : null;
 
 const SLOW_FRAME_MS = 40;
+
+/** Bigger mid-trip so trucks read in the network view; normal size near a site so they never dwarf the docks. */
+function truckScale(t: Truck): number {
+  if (t.location !== "road" || t.status === "departed") return 1;
+  const p = Math.min(1, Math.max(0, 1 - t.etaMinutes / Math.max(1, t.tripMinutes)));
+  return Math.round((1 + 0.7 * Math.sin(Math.PI * p)) * 20) / 20;
+}
 
 function currentFocus(): Focus {
   const s = useWorld.getState();
@@ -166,13 +173,7 @@ function World3D({ reducedMotion, mobile }: { reducedMotion: boolean; mobile: bo
               <Site3D key={s.id} site={s} world={world} palette={palette} reducedMotion={reducedMotion} />
             ))}
             {trucks.map(({ t, s }) => (
-              <Truck3D
-                key={t.id}
-                truck={t}
-                pose={truckPose(world, t, s)}
-                scale={t.location === "road" ? 1.7 : 1}
-                reducedMotion={reducedMotion}
-              />
+              <Truck3D key={t.id} truck={t} pose={truckPose(world, t, s)} scale={truckScale(t)} reducedMotion={reducedMotion} />
             ))}
           </WheelInstances>
         </GlowInstances>

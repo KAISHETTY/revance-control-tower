@@ -21,14 +21,14 @@ export default function ExceptionChart({
     .filter((d) => d.count > 0)
     .sort((a, b) => b.dollars - a.dollars);
   return (
-    <div className="h-36 w-full" role="img" aria-label="Dollars at risk by exception type">
+    <div className="h-40 w-full" role="img" aria-label="Dollars at risk by exception type">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} layout="vertical" margin={{ top: 0, right: 48, bottom: 0, left: 0 }} barCategoryGap={3}>
           <XAxis type="number" hide />
           <YAxis
             type="category"
             dataKey="label"
-            width={150}
+            width={196}
             tick={{ fontSize: 10, fill: "var(--muted)" }}
             axisLine={false}
             tickLine={false}

@@ -1,5 +1,5 @@
 import { Edges } from "@react-three/drei";
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { memo, useLayoutEffect, useMemo, useRef } from "react";
 import { Color, Matrix4, Quaternion, Vector3, type InstancedMesh } from "three";
 import { classifyExpiry, worstExpiry } from "../engine/expiry";
 import { productBySku } from "../sim/products";
@@ -167,14 +167,17 @@ function BayHitBox({ bay, x, z, today }: { bay: StockBay; x: number; z: number; 
   );
 }
 
-export function StockBays({ site, today }: { site: Site; today: string }) {
-  const lay = siteLayout(site);
-  return (
-    <group>
-      <SiteStockInstances site={site} today={today} />
-      {site.bays.map((b) => (
-        <BayHitBox key={b.id} bay={b} x={lay.bays[b.id].pos.x} z={lay.bays[b.id].pos.z} today={today} />
-      ))}
-    </group>
-  );
-}
+export const StockBays = memo(
+  function StockBays({ site, today }: { site: Site; today: string }) {
+    const lay = siteLayout(site);
+    return (
+      <group>
+        <SiteStockInstances site={site} today={today} />
+        {site.bays.map((b) => (
+          <BayHitBox key={b.id} bay={b} x={lay.bays[b.id].pos.x} z={lay.bays[b.id].pos.z} today={today} />
+        ))}
+      </group>
+    );
+  },
+  (a, b) => a.site.id === b.site.id && stockKey(a.site, a.today) === stockKey(b.site, b.today),
+);

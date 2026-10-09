@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import type { Alert, AlertCategory } from "../engine/alerts";
 import { cn } from "../lib/cn";
 import { siteName } from "../sim/lookup";
+import { memo } from "react";
 import { useAlerts } from "../store/derived";
 import { useWorld, type AlertFilter } from "../store/useWorld";
 import { SEVERITY_LABEL } from "./labels";
@@ -26,39 +27,43 @@ const ICONS: Record<AlertCategory, ReactNode> = {
 const SEV_BAR = { high: "bg-bad", medium: "bg-warn", low: "bg-info" } as const;
 const SEV_TEXT = { high: "text-bad", medium: "text-warn", low: "text-info" } as const;
 
-function AlertRow({ alert, selected }: { alert: Alert; selected: boolean }) {
-  const select = useWorld((s) => s.select);
-  const world = useWorld((s) => s.world);
-  return (
-    <button
-      type="button"
-      onClick={() => select(alert.ref)}
-      data-testid="alert-row"
-      data-alert-id={alert.id}
-      data-ref={`${alert.ref.kind}:${alert.ref.id}`}
-      className={cn(
-        "group relative flex w-full items-start gap-3 overflow-hidden rounded-lg border bg-panel px-3 py-2.5 pl-4 text-left transition-colors hover:bg-panel-2",
-        selected ? "border-accent" : "border-line",
-      )}
-    >
-      <span className={cn("absolute inset-y-0 left-0 w-1", SEV_BAR[alert.severity])} aria-hidden />
-      <span className={cn("mt-0.5", SEV_TEXT[alert.severity])} aria-hidden>
-        {ICONS[alert.category]}
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-sm leading-snug font-medium">{alert.title}</span>
-        <span className="mt-0.5 block text-xs leading-snug text-muted">
-          <span className={cn("font-semibold", SEV_TEXT[alert.severity])}>{SEVERITY_LABEL[alert.severity]}</span>
-          {" · "}
-          {siteName(world, alert.siteId)}
-          {" · "}
-          {alert.nextStep}
+const AlertRow = memo(
+  function AlertRow({ alert, selected }: { alert: Alert; selected: boolean }) {
+    const select = useWorld((s) => s.select);
+    const site = useWorld((s) => siteName(s.world, alert.siteId));
+    return (
+      <button
+        type="button"
+        onClick={() => select(alert.ref)}
+        data-testid="alert-row"
+        data-alert-id={alert.id}
+        data-ref={`${alert.ref.kind}:${alert.ref.id}`}
+        className={cn(
+          "group relative flex w-full items-start gap-3 overflow-hidden rounded-lg border bg-panel px-3 py-2.5 pl-4 text-left transition-colors hover:bg-panel-2",
+          selected ? "border-accent" : "border-line",
+        )}
+      >
+        <span className={cn("absolute inset-y-0 left-0 w-1", SEV_BAR[alert.severity])} aria-hidden />
+        <span className={cn("mt-0.5", SEV_TEXT[alert.severity])} aria-hidden>
+          {ICONS[alert.category]}
         </span>
-      </span>
-      <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-muted opacity-0 transition-opacity group-hover:opacity-100" aria-hidden />
-    </button>
-  );
-}
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm leading-snug font-medium">{alert.title}</span>
+          <span className="mt-0.5 block text-xs leading-snug text-muted">
+            <span className={cn("font-semibold", SEV_TEXT[alert.severity])}>{SEVERITY_LABEL[alert.severity]}</span>
+            {" · "}
+            {site}
+            {" · "}
+            {alert.nextStep}
+          </span>
+        </span>
+        <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-muted opacity-0 transition-opacity group-hover:opacity-100" aria-hidden />
+      </button>
+    );
+  },
+  (a, b) =>
+    a.selected === b.selected && a.alert.id === b.alert.id && a.alert.title === b.alert.title && a.alert.severity === b.alert.severity,
+);
 
 export function AlertFeed() {
   const alerts = useAlerts();
@@ -98,7 +103,6 @@ export function AlertFeed() {
             {shown.map((a) => (
               <m.div
                 key={a.id}
-                layout="position"
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}

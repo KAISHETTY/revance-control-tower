@@ -60,7 +60,9 @@ function initialSeed(): number {
 }
 
 function initialSpeed(): Speed {
-  const s = Number(readParams().get("speed"));
+  const raw = readParams().get("speed");
+  if (raw === null) return 1;
+  const s = Number(raw);
   return s === 0 || s === 5 || s === 20 ? s : 1;
 }
 

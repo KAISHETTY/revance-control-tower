@@ -61,11 +61,24 @@ export function useLots(): LotView[] {
   return useWorld((s) => getLots(s.world));
 }
 
+const kpiCache = new WeakMap<World, Map<string, Kpis>>();
+function getKpis(world: World, siteId?: SiteId): Kpis {
+  let bySite = kpiCache.get(world);
+  if (!bySite) {
+    bySite = new Map();
+    kpiCache.set(world, bySite);
+  }
+  const key = siteId ?? "*";
+  let k = bySite.get(key);
+  if (!k) {
+    k = computeKpis(world, getExceptions(world), getAlerts(world), siteId);
+    bySite.set(key, k);
+  }
+  return k;
+}
+
 export function useKpis(siteId?: SiteId): Kpis {
-  const world = useWorld((s) => s.world);
-  const exc = useExceptions();
-  const alerts = useAlerts();
-  return useMemo(() => computeKpis(world, exc, alerts, siteId), [world, exc, alerts, siteId]);
+  return useWorld((s) => getKpis(s.world, siteId));
 }
 
 /** The site currently in focus, or undefined for the whole network. */
