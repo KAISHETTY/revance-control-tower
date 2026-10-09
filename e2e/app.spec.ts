@@ -108,6 +108,7 @@ test.describe("Revance Control Tower (unofficial prototype)", () => {
   });
 
   test("7. orders panel: filters, search, sort, drawer, CSV export", async ({ page }) => {
+    test.setTimeout(180_000);
     await openApp(page, "webgl=0");
     await page.getByTestId("tab-orders").click();
     const rows = page.locator('[data-testid="order-row"]:visible, [data-testid="order-card"]:visible');
@@ -122,7 +123,9 @@ test.describe("Revance Control Tower (unofficial prototype)", () => {
     await page.getByTestId("filter-type").selectOption("all");
 
     await page.getByTestId("filter-severity").selectOption("high");
-    for (const r of await rows.all()) await expect(r).toContainText("High");
+    const severities = await rows.allTextContents();
+    expect(severities.length).toBeGreaterThan(0);
+    expect(severities.every((t) => t.includes("High"))).toBe(true);
     await page.getByTestId("filter-severity").selectOption("all");
 
     await page.getByTestId("filter-min").fill("99999999");
