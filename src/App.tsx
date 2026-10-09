@@ -7,7 +7,6 @@ import { MINUTES_PER_SECOND } from "./sim/tick";
 import { useAlerts } from "./store/derived";
 import { useWorld, type Tab } from "./store/useWorld";
 import { AlertFeed } from "./ui/AlertFeed";
-import { Banner } from "./ui/Banner";
 import { DetailPanel } from "./ui/DetailPanel";
 import { Headline } from "./ui/Headline";
 import { KpiStrip } from "./ui/KpiStrip";
@@ -136,7 +135,6 @@ export default function App() {
       <MotionConfig reducedMotion="user">
         <TooltipProvider delayDuration={300}>
           <div className="flex min-h-dvh flex-col lg:h-dvh">
-            <Banner />
             <TopBar />
             <Headline />
             <KpiStrip />

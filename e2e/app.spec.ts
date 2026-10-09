@@ -3,11 +3,9 @@ import { readFileSync } from "node:fs";
 import { distinctColors, expect, isPhone, openApp, projectObject, test, waitForScene } from "./fixtures";
 
 test.describe("Revance Control Tower (unofficial prototype)", () => {
-  test("1. loads cleanly with the synthetic-data banner", async ({ page }) => {
+  test("1. loads cleanly with the unofficial-prototype subtitle", async ({ page }) => {
     await openApp(page);
-    await expect(
-      page.getByText("Unofficial prototype. Not affiliated with or endorsed by Revance. Synthetic data. Not connected to any real system."),
-    ).toBeVisible();
+    await expect(page.getByText("Unofficial prototype built from public information")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Revance Control Tower" })).toBeVisible();
     await expect(page.getByTestId("headline")).toContainText("Across Nashville, Johnson City and Newark");
     await expect(page.getByTestId("kpi-risk-value")).toHaveText(/^\$[\d.]+[KM]?$/);

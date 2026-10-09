@@ -9,8 +9,6 @@ A 3D supply-chain control tower across three sites, running entirely in the brow
 - late trucks, blocked docks and low forklift batteries
 - order-to-cash breaks between the sales side, the warehouse and finance: shipped but not invoiced, price and quantity mismatches, duplicate invoices, and more
 
-> Unofficial prototype. Not affiliated with or endorsed by Revance. Synthetic data. Not connected to any real system.
-
 ![Network view](docs/screenshots/desktop-network.png)
 
 | Site view                              | Temperature alert detail                       | Orders panel                             |

@@ -6,7 +6,7 @@ Setup: start it on your own device before you sit down (`npm run build && npm ru
 
 > "I read your public priorities on running the sales and finance systems as one. I built a small prototype on made-up data to think through the gap. Tell me where it is wrong."
 
-Point at the banner: unofficial, not affiliated, synthetic data, not connected to anything.
+Point at the subtitle ("Unofficial prototype built from public information") and the "Synthetic data" pill.
 
 ## 0:15 to 0:35, network view
 
