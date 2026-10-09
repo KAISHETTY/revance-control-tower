@@ -12,15 +12,10 @@ function mediaStore(query: string) {
 }
 
 const reduced = mediaStore("(prefers-reduced-motion: reduce)");
-const desktop = mediaStore("(min-width: 1024px)");
 const coarse = mediaStore("(pointer: coarse)");
 
 export function usePrefersReducedMotion(): boolean {
   return useSyncExternalStore(reduced.subscribe, reduced.get, () => false);
-}
-
-export function useIsDesktop(): boolean {
-  return useSyncExternalStore(desktop.subscribe, desktop.get, () => true);
 }
 
 export function useIsCoarsePointer(): boolean {

@@ -11,10 +11,6 @@ export type Resolved =
   | { kind: "shipment"; site: Site; shipment: Shipment }
   | { kind: "order"; site: Site; order: Order };
 
-export function siteById(world: World, id: SiteId): Site {
-  return world.sites.find((s) => s.id === id)!;
-}
-
 export function siteName(world: World, id: SiteId): string {
   return world.sites.find((s) => s.id === id)?.shortName ?? id;
 }

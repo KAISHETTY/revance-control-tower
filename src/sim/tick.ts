@@ -5,16 +5,16 @@ import { travelMinutes } from "./world";
 
 /** Simulated minutes per real second at 1x speed. */
 export const MINUTES_PER_SECOND = 5;
-export const HISTORY_EVERY_MINUTES = 15;
-export const HISTORY_LENGTH = 48;
+const HISTORY_EVERY_MINUTES = 15;
+const HISTORY_LENGTH = 48;
 /** Minutes a truck takes to pull out of the dock and leave the yard. */
 export const DEPART_MINUTES = 15;
 /** Minutes per forklift move between two points. */
-export const FORKLIFT_LEG_MINUTES = 4;
-export const FORKLIFT_LOW_BATTERY = 12;
+const FORKLIFT_LEG_MINUTES = 4;
+const FORKLIFT_LOW_BATTERY = 12;
 /** A reefer at a dock this long in a hot yard starts warming. */
-export const REEFER_HEAT_AFTER_MINUTES = 90;
-export const HOT_AMBIENT_C = 28;
+const REEFER_HEAT_AFTER_MINUTES = 90;
+const HOT_AMBIENT_C = 28;
 const MAX_DOCK_VISITS = 200;
 
 const round2 = (n: number) => Math.round(n * 100) / 100;

@@ -441,7 +441,7 @@ function titleFor(r: Resolved): { title: string; subtitle: string; badge?: React
   }
 }
 
-export function DetailContent({ selection }: { selection: ObjectRef }) {
+function DetailContent({ selection }: { selection: ObjectRef }) {
   const world = useWorld((s) => s.world);
   const alerts = useAlerts();
   const select = useWorld((s) => s.select);

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { classifyTemp } from "../engine/coldchain";
 import { physicalRef, resolveRef } from "../sim/lookup";
-import { MINUTES_PER_SECOND, tick } from "../sim/tick";
+import { tick } from "../sim/tick";
 import type { ObjectRef, SiteId, World } from "../sim/types";
 import { DEFAULT_SEED, generateWorld } from "../sim/world";
 import { hasWebGL } from "../lib/webgl";
@@ -185,8 +185,6 @@ export const useWorld = create<UiState>((set, get) => ({
       return { world: { ...s.world, sites } };
     }),
 }));
-
-export { MINUTES_PER_SECOND };
 
 /** Test and debugging hook. Read-only access plus deterministic stepping. */
 declare global {

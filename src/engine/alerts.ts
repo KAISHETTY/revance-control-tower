@@ -28,10 +28,10 @@ export interface Alert {
   nextStep: string;
 }
 
-export const TRUCK_DELAY_ALERT_MINUTES = 60;
-export const FORKLIFT_CRITICAL_BATTERY = 15;
+const TRUCK_DELAY_ALERT_MINUTES = 60;
+const FORKLIFT_CRITICAL_BATTERY = 15;
 /** Late shipments older than this are left to the order-to-cash view. */
-export const LATE_SHIPMENT_WINDOW_DAYS = 14;
+const LATE_SHIPMENT_WINDOW_DAYS = 14;
 
 const TYPE_RANK: Record<AlertType, number> = {
   COLD_EXCURSION: 0,

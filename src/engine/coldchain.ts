@@ -1,10 +1,10 @@
-import type { ColdStatus, World, SiteId } from "../sim/types";
+import type { ColdStatus } from "../sim/types";
 
 /** Acceptable storage range for cold-chain product. Setpoint sits mid-range. */
 export const COLD_RANGE_C = { min: 2, max: 8 } as const;
 export const COLD_SETPOINT_C = 5;
-export const WARNING_DELTA_C = 2;
-export const EXCURSION_DELTA_C = 4;
+const WARNING_DELTA_C = 2;
+const EXCURSION_DELTA_C = 4;
 
 /**
  * Classify a reading against its setpoint. Deviation in either direction counts
@@ -22,44 +22,4 @@ export function classifyTemp(currentC: number, setpointC: number): ColdStatus {
 export function nextColdStatus(prev: ColdStatus | undefined, currentC: number, setpointC: number): ColdStatus {
   if (prev === "excursion") return "excursion";
   return classifyTemp(currentC, setpointC);
-}
-
-export interface ColdChainReading {
-  kind: "coldRoom" | "truck";
-  id: string;
-  label: string;
-  siteId: SiteId;
-  currentC: number;
-  setpointC: number;
-  status: ColdStatus;
-}
-
-export function coldChainReadings(world: World): ColdChainReading[] {
-  const out: ColdChainReading[] = [];
-  for (const site of world.sites) {
-    for (const r of site.coldRooms) {
-      out.push({
-        kind: "coldRoom",
-        id: r.id,
-        label: r.label,
-        siteId: site.id,
-        currentC: r.currentC,
-        setpointC: r.setpointC,
-        status: r.status,
-      });
-    }
-    for (const t of site.trucks) {
-      if (t.kind !== "reefer" || t.tempC === undefined || t.setpointC === undefined) continue;
-      out.push({
-        kind: "truck",
-        id: t.id,
-        label: t.id,
-        siteId: site.id,
-        currentC: t.tempC,
-        setpointC: t.setpointC,
-        status: t.tempStatus ?? "ok",
-      });
-    }
-  }
-  return out;
 }

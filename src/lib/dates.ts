@@ -1,5 +1,5 @@
 /** Calendar helpers. All dates are ISO "YYYY-MM-DD" strings handled in UTC to avoid timezone drift. */
-export const DAY_MS = 86_400_000;
+const DAY_MS = 86_400_000;
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -17,7 +17,7 @@ export function isoToUtcMs(iso: string): number {
   return Date.UTC(y, m - 1, d);
 }
 
-export function utcMsToIso(ms: number): string {
+function utcMsToIso(ms: number): string {
   const d = new Date(ms);
   return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
 }

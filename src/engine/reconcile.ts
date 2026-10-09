@@ -37,9 +37,9 @@ export type Severity = "high" | "medium" | "low";
 export const SEVERITY_RANK: Record<Severity, number> = { high: 0, medium: 1, low: 2 };
 
 /** Orders older than this with nothing shipped are flagged. */
-export const AGED_DAYS = 7;
+const AGED_DAYS = 7;
 /** Shipments get this many days to be invoiced before they are flagged. */
-export const INVOICE_GRACE_DAYS = 2;
+const INVOICE_GRACE_DAYS = 2;
 /** A shipped lot expiring within this many days of the ship date is a risk. */
 export const EXPIRY_RISK_DAYS = 30;
 

@@ -18,19 +18,19 @@ export interface Pose extends Vec2 {
   rot: number;
 }
 
-export const SITE_ORIGINS: Record<SiteId, Vec2> = {
+const SITE_ORIGINS: Record<SiteId, Vec2> = {
   WEST: { x: -108, z: 26 },
   NASH: { x: 0, z: 0 },
   JCTY: { x: 104, z: -36 },
 };
 
-export const DOCK_SPACING = 4.2;
-export const BUILDING_DEPTH = 20;
+const DOCK_SPACING = 4.2;
+const BUILDING_DEPTH = 20;
 export const WALL_HEIGHT = 3.2;
 export const BAY_W = 2.8;
 export const BAY_D = 1.3;
-export const COLD_ROOM_W = 8;
-export const COLD_ROOM_D = 9;
+const COLD_ROOM_W = 8;
+const COLD_ROOM_D = 9;
 export const TRUCK_LENGTH = 8.6;
 
 export interface DockLayout {
@@ -158,7 +158,7 @@ function heading(from: Vec2, to: Vec2, fallback = 0): number {
 }
 
 /** Road endpoints for a trip into `site` from `origin` (undefined = outside the network). */
-export function roadFor(world: World, truck: Truck): [Vec2, Vec2] {
+function roadFor(world: World, truck: Truck): [Vec2, Vec2] {
   const dest = siteLayout(siteById(world, truck.siteId));
   if (!truck.originSiteId) return [dest.extFar, dest.gates.EXT];
   const from = siteLayout(siteById(world, truck.originSiteId));
@@ -198,7 +198,7 @@ export function truckPose(world: World, truck: Truck, site: Site): Pose {
 }
 
 /** Where a forklift's waypoint id is on the floor. */
-export function waypoint(site: Site, id: string | undefined): Vec2 {
+function waypoint(site: Site, id: string | undefined): Vec2 {
   const lay = siteLayout(site);
   if (!id || isChargerId(id)) return lay.charger;
   if (isDockId(id)) return lay.docks[id]?.inside ?? lay.charger;

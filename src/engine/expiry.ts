@@ -5,8 +5,8 @@ import type { Lot, SiteId, World } from "../sim/types";
 export type ExpiryStatus = "expired" | "critical" | "warning" | "ok";
 export const EXPIRY_ORDER: readonly ExpiryStatus[] = ["expired", "critical", "warning", "ok"];
 
-export const CRITICAL_DAYS = 30;
-export const WARNING_DAYS = 90;
+const CRITICAL_DAYS = 30;
+const WARNING_DAYS = 90;
 
 export function daysToExpiry(expiresOn: string, today: string): number {
   return daysBetween(today, expiresOn);

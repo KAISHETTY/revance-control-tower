@@ -25,7 +25,7 @@ import type {
 } from "./types";
 
 export const DEFAULT_SEED = 42;
-export const ORDER_COUNT = 300;
+const ORDER_COUNT = 300;
 
 interface SiteDef {
   id: SiteId;
@@ -41,7 +41,7 @@ interface SiteDef {
   forklifts: number;
 }
 
-export const SITE_DEFS: readonly SiteDef[] = [
+const SITE_DEFS: readonly SiteDef[] = [
   {
     id: "NASH",
     name: "Nashville Distribution Center",
@@ -90,7 +90,7 @@ export function travelMinutes(a: SiteId, b: SiteId): number {
   return table[key] ?? 120;
 }
 
-export const CARRIERS = [
+const CARRIERS = [
   "Ridgeline Freight",
   "BlueArc Logistics",
   "Cumberland Express",

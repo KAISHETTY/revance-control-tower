@@ -34,7 +34,7 @@ export function getAlerts(world: World): Alert[] {
 }
 
 const lotCache = new WeakMap<object, LotView[]>();
-export function getLots(world: World): LotView[] {
+function getLots(world: World): LotView[] {
   let v = lotCache.get(world.sites);
   if (!v) {
     v = allLots(world);
