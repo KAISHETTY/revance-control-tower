@@ -72,7 +72,7 @@ export function TopBar() {
 
         <SitePicker className="order-3 w-full lg:order-none lg:ml-4 lg:w-auto" />
 
-        <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-1 sm:gap-2">
           <Timeline />
           <SimControls />
           <Tip label={renderMode === "3d" ? "Switch to 2D map" : webglMissing ? "3D is not available on this device" : "Switch to 3D"}>
@@ -94,7 +94,7 @@ export function TopBar() {
               variant="ghost"
               aria-label="Low graphics"
               aria-pressed={lowGraphics}
-              className={cn("hidden sm:inline-flex", lowGraphics && "text-warn")}
+              className={cn(lowGraphics && "text-warn")}
               onClick={() => setLowGraphics(!lowGraphics)}
             >
               <Sparkles className="h-4 w-4" />
@@ -105,7 +105,6 @@ export function TopBar() {
               size="icon"
               variant="ghost"
               aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-              className="hidden sm:inline-flex"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             >
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -126,7 +125,13 @@ export function TopBar() {
             </Button>
           </Tip>
           <Tip label="Search everything (Ctrl/Cmd + K)">
-            <Button size="icon" variant="ghost" aria-label="Open command palette" onClick={() => setPaletteOpen(true)}>
+            <Button
+              size="icon"
+              variant="ghost"
+              aria-label="Open command palette"
+              className="hidden sm:inline-flex"
+              onClick={() => setPaletteOpen(true)}
+            >
               <Command className="h-4 w-4" />
             </Button>
           </Tip>
