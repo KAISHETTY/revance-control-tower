@@ -19,7 +19,7 @@ export function explainAlert(alert: Alert, world: World): Explanation {
     case "COLD_EXCURSION":
       if (r?.kind === "truck") {
         return {
-          text: `Reefer ${r.truck.id} has likely been at the dock with doors open too long in a ${r.site.ambientC}°C yard. Product inside is possibly compromised until QA reviews the logger data.`,
+          text: `${r.truck.id} has likely been at the dock with doors open too long in a ${r.site.ambientC}°C yard. Product inside is possibly compromised until QA reviews the logger data.`,
           nextStep: alert.nextStep,
         };
       }
@@ -144,7 +144,7 @@ export function explainException(e: ReconException): Explanation {
   }
 }
 
-/** One-line status summary for cold-chain readings in detail panels. */
+/** One-line status summary for temperature readings in detail panels. */
 export function describeTemp(currentC: number, setpointC: number): string {
   const d = currentC - setpointC;
   if (Math.abs(d) < 0.5) return `${formatTemp(currentC)}, on setpoint`;

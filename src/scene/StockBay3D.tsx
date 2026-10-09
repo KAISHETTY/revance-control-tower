@@ -15,7 +15,7 @@ const LEVEL_H = 0.9;
 const FLOOR_Y = 0.2;
 const MAX_LEVELS = 3;
 const COLS = 3;
-const UNITS_PER_PALLET = { Injectable: 120, "Device Kit": 80, Skincare: 700 } as const;
+const UNITS_PER_PALLET = { Aesthetics: 120, Device: 80, "Consumer skincare": 700 } as const;
 
 interface PalletSpec {
   x: number;

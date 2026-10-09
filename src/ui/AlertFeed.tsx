@@ -10,7 +10,7 @@ import { SEVERITY_LABEL } from "./labels";
 
 const FILTERS: { value: AlertFilter; label: string }[] = [
   { value: "all", label: "All" },
-  { value: "cold", label: "Cold chain" },
+  { value: "cold", label: "Temperature" },
   { value: "expiry", label: "Expiry" },
   { value: "ops", label: "Operations" },
   { value: "shipping", label: "Shipping" },

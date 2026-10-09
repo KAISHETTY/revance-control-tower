@@ -1,7 +1,7 @@
 import { Line, LineChart, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, YAxis } from "recharts";
 import { COLD_RANGE_C } from "../engine/coldchain";
 
-/** Temperature trend for a cold room, last 12 simulated hours. Lazy-loaded with Recharts. */
+/** Temperature trend for a temperature-controlled room, last 12 simulated hours. Lazy-loaded with Recharts. */
 export default function Sparkline({ values, setpoint }: { values: number[]; setpoint: number }) {
   const data = values.map((v, i) => ({ i, v }));
   const min = Math.min(COLD_RANGE_C.min - 1, ...values);

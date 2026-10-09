@@ -61,7 +61,10 @@ export function TopBar() {
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent">
             <Snowflake className="h-4.5 w-4.5" aria-hidden />
           </div>
-          <h1 className="truncate text-sm font-semibold tracking-tight sm:text-base">Cold-Chain Control Tower</h1>
+          <div className="min-w-0">
+            <h1 className="truncate text-sm leading-tight font-semibold tracking-tight sm:text-base">Revance Control Tower</h1>
+            <p className="truncate text-[11px] leading-tight text-muted">Unofficial prototype built from public information</p>
+          </div>
           <span className="hidden rounded-full bg-warn/15 px-2 py-0.5 text-[11px] font-semibold text-warn ring-1 ring-warn/30 ring-inset sm:inline">
             Synthetic data
           </span>

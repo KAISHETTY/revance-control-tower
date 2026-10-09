@@ -91,7 +91,7 @@ export function deriveAlerts(world: World): Alert[] {
             "high",
             site.id,
             { kind: "truck", id: truck.id },
-            `Reefer ${truck.id} excursion at ${formatTemp(truck.tempC)}`,
+            `${truck.id} temperature excursion at ${formatTemp(truck.tempC)}`,
             "Hold the load, download the logger and get a QA disposition.",
           );
         } else if (truck.tempStatus === "warning") {
@@ -100,8 +100,8 @@ export function deriveAlerts(world: World): Alert[] {
             "medium",
             site.id,
             { kind: "truck", id: truck.id },
-            `Reefer ${truck.id} warming at ${formatTemp(truck.tempC)}`,
-            "Close doors between pallets and check the reefer unit.",
+            `${truck.id} warming at ${formatTemp(truck.tempC)}`,
+            "Close doors between pallets and check the temperature unit.",
           );
         }
       }

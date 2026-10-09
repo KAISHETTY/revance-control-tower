@@ -2,12 +2,14 @@ import AxeBuilder from "@axe-core/playwright";
 import { readFileSync } from "node:fs";
 import { distinctColors, expect, isPhone, openApp, projectObject, test, waitForScene } from "./fixtures";
 
-test.describe("Cold-Chain Control Tower", () => {
+test.describe("Revance Control Tower (unofficial prototype)", () => {
   test("1. loads cleanly with the synthetic-data banner", async ({ page }) => {
     await openApp(page);
-    await expect(page.getByText("Prototype on synthetic data. Not connected to any real system.")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Cold-Chain Control Tower" })).toBeVisible();
-    await expect(page.getByTestId("headline")).toContainText("Across 3 sites");
+    await expect(
+      page.getByText("Unofficial prototype. Not affiliated with or endorsed by Revance. Synthetic data. Not connected to any real system."),
+    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Revance Control Tower" })).toBeVisible();
+    await expect(page.getByTestId("headline")).toContainText("Across Nashville, Johnson City and Newark");
     await expect(page.getByTestId("kpi-risk-value")).toHaveText(/^\$[\d.]+[KM]?$/);
   });
 
@@ -25,7 +27,7 @@ test.describe("Cold-Chain Control Tower", () => {
     const before = await projectObject(page, "truck", "TRK-113");
     await page.locator('[data-alert-id="COLD_EXCURSION:TRK-113"]').click();
     await expect(page.getByTestId("detail-title")).toHaveText("TRK-113");
-    await expect(page.getByTestId("breadcrumb-site")).toHaveText("West Coast");
+    await expect(page.getByTestId("breadcrumb-site")).toHaveText("Newark");
     await expect(page.getByTestId("explanation").first()).toContainText("likely");
     await page.waitForTimeout(1800);
     const after = await projectObject(page, "truck", "TRK-113");
@@ -41,7 +43,7 @@ test.describe("Cold-Chain Control Tower", () => {
   test("4. clicking a reefer truck in 3D shows temperature and shipment", async ({ page }) => {
     await openApp(page);
     await waitForScene(page);
-    await page.getByRole("radio", { name: "West Coast" }).click();
+    await page.getByRole("radio", { name: "Newark" }).click();
     await page.waitForTimeout(1800);
     const p = await projectObject(page, "truck", "TRK-113");
     expect(p).not.toBeNull();
@@ -59,7 +61,7 @@ test.describe("Cold-Chain Control Tower", () => {
     for (const [name, crumb] of [
       ["Nashville", "Nashville"],
       ["Johnson City", "Johnson City"],
-      ["West Coast", "West Coast"],
+      ["Newark", "Newark"],
     ]) {
       await page.getByRole("radio", { name }).click();
       await expect(page.getByTestId("breadcrumb-site")).toHaveText(crumb);
@@ -147,7 +149,7 @@ test.describe("Cold-Chain Control Tower", () => {
     await rows.first().click();
     const drawer = page.getByTestId("order-drawer");
     await expect(drawer).toBeVisible();
-    await expect(drawer.getByTestId("three-way")).toContainText("Ordered");
+    await expect(drawer.getByTestId("three-way")).toContainText("Sales side (Salesforce / field CRM)");
     await expect(drawer).toContainText("Next step");
     await page.keyboard.press("Escape");
     await expect(drawer).toBeHidden();
@@ -196,10 +198,10 @@ test.describe("Cold-Chain Control Tower", () => {
     await expect(page.getByTestId("fallback-2d")).toBeVisible();
     await expect(page.getByTestId("scene-canvas")).toHaveCount(0);
     await expect(page.getByTestId("toggle-2d")).toBeDisabled();
-    await page.getByTestId("obj-site-WEST").click();
-    await expect(page.getByTestId("breadcrumb-site")).toHaveText("West Coast");
-    await page.getByTestId("obj-coldRoom-WEST-CR1").click();
-    await expect(page.getByTestId("detail-title")).toHaveText("Cold Room 1");
+    await page.getByTestId("obj-site-NWK").click();
+    await expect(page.getByTestId("breadcrumb-site")).toHaveText("Newark");
+    await page.getByTestId("obj-coldRoom-NWK-CR1").click();
+    await expect(page.getByTestId("detail-title")).toHaveText("Temp-controlled room 1");
     await expect(page.getByTestId("room-temp")).toContainText("°C");
   });
 
@@ -227,7 +229,7 @@ test.describe("Cold-Chain Control Tower", () => {
   test("12. accessibility: no serious or critical axe violations on any tab", async ({ page }) => {
     test.setTimeout(240_000);
     await openApp(page, "webgl=0");
-    for (const tab of ["alerts", "orders", "lots", "how"]) {
+    for (const tab of ["alerts", "orders", "lots", "why", "how"]) {
       await page.getByTestId(`tab-${tab}`).click();
       await page.waitForTimeout(300);
       const results = await new AxeBuilder({ page }).analyze();
@@ -242,4 +244,16 @@ test.describe("Cold-Chain Control Tower", () => {
     const detail = await new AxeBuilder({ page }).include('[data-testid="detail-panel"]').analyze();
     expect(detail.violations.filter((v) => v.impact === "serious" || v.impact === "critical").map((v) => v.id)).toEqual([]);
   });
+});
+
+test("13. unofficial labeling, public-source tags and the Why tab", async ({ page }) => {
+  await openApp(page, "webgl=0");
+  await expect(page.getByText("Unofficial prototype built from public information")).toBeVisible();
+  await page.getByTestId("tab-why").click();
+  const why = page.getByTestId("why-this");
+  await expect(why).toContainText("What I read in your public priorities");
+  await expect(why.getByText("From public sources")).toHaveCount(5);
+  await expect(why).toContainText("Which of your products are actually temperature-controlled in transit?");
+  await page.getByTestId("tab-orders").click();
+  await expect(page.getByText(/System names reflect a public Revance job posting/).first()).toBeVisible();
 });

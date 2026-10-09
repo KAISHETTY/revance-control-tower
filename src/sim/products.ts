@@ -1,19 +1,36 @@
 import type { Product } from "./types";
 
-/** Generic catalog. Prices are synthetic wholesale prices per unit. */
+/**
+ * Brand names are from public sources and used as plain text only. SKUs, pack
+ * variants, prices and shelf lives are synthetic. Nothing here says which
+ * products need temperature control: that is assigned at random per lot.
+ */
 export const PRODUCTS: readonly Product[] = [
-  { sku: "NT-100", name: "Neurotoxin 100U Vial", category: "Injectable", unitPrice: 610, coldChain: true, shelfLifeDays: 730 },
-  { sku: "NT-050", name: "Neurotoxin 50U Vial", category: "Injectable", unitPrice: 330, coldChain: true, shelfLifeDays: 730 },
-  { sku: "DF-100", name: "Dermal Filler 1mL", category: "Injectable", unitPrice: 320, coldChain: true, shelfLifeDays: 540 },
-  { sku: "DFL-100", name: "Dermal Filler Lidocaine 1mL", category: "Injectable", unitPrice: 340, coldChain: true, shelfLifeDays: 365 },
-  { sku: "MN-001", name: "Microneedling Kit (Single)", category: "Device Kit", unitPrice: 95, coldChain: false, shelfLifeDays: 1095 },
-  { sku: "MN-010", name: "Microneedling Kit (10-pack)", category: "Device Kit", unitPrice: 850, coldChain: false, shelfLifeDays: 1095 },
-  { sku: "AG-006", name: "Acne Gel Wash 6oz", category: "Skincare", unitPrice: 28, coldChain: false, shelfLifeDays: 1000 },
-  { sku: "AT-002", name: "Acne Treatment Cream", category: "Skincare", unitPrice: 36, coldChain: false, shelfLifeDays: 900 },
-  { sku: "SS-050", name: "Mineral Sunscreen SPF 50", category: "Skincare", unitPrice: 32, coldChain: false, shelfLifeDays: 1000 },
-  { sku: "AS-008", name: "After-Sun Lotion", category: "Skincare", unitPrice: 24, coldChain: false, shelfLifeDays: 1100 },
-  { sku: "BR-030", name: "Barrier Repair Serum", category: "Skincare", unitPrice: 58, coldChain: false, shelfLifeDays: 950 },
-  { sku: "AN-050", name: "Anti-Aging Night Cream", category: "Skincare", unitPrice: 72, coldChain: false, shelfLifeDays: 1050 },
+  { sku: "AES-DXF-1", name: "DAXXIFY", category: "Aesthetics", unitPrice: 590, shelfLifeDays: 730 },
+  { sku: "AES-DXF-2", name: "DAXXIFY (clinic pack)", category: "Aesthetics", unitPrice: 1150, shelfLifeDays: 730 },
+  {
+    sku: "AES-RHA-1",
+    name: "RHA Collection filler",
+    category: "Aesthetics",
+    unitPrice: 310,
+    shelfLifeDays: 540,
+    note: "Distributed in the US via a partner",
+  },
+  {
+    sku: "AES-RHA-2",
+    name: "RHA Collection filler (clinic pack)",
+    category: "Aesthetics",
+    unitPrice: 1180,
+    shelfLifeDays: 540,
+    note: "Distributed in the US via a partner",
+  },
+  { sku: "DEV-SKP-1", name: "SkinPen microneedling kit", category: "Device", unitPrice: 95, shelfLifeDays: 1095 },
+  { sku: "DEV-SKP-10", name: "SkinPen microneedling kit (10-pack)", category: "Device", unitPrice: 850, shelfLifeDays: 1095 },
+  { sku: "CON-PNX-1", name: "PanOxyl", category: "Consumer skincare", unitPrice: 9, shelfLifeDays: 1000 },
+  { sku: "CON-BLZ-1", name: "Blue Lizard", category: "Consumer skincare", unitPrice: 11, shelfLifeDays: 1000 },
+  { sku: "CON-STV-1", name: "StriVectin", category: "Consumer skincare", unitPrice: 38, shelfLifeDays: 950 },
+  { sku: "CON-BJV-1", name: "BIOJUVE", category: "Consumer skincare", unitPrice: 52, shelfLifeDays: 900 },
+  { sku: "CON-SRN-1", name: "Sarna", category: "Consumer skincare", unitPrice: 8, shelfLifeDays: 1100 },
 ];
 
 const BY_SKU = new Map(PRODUCTS.map((p) => [p.sku, p]));

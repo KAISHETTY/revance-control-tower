@@ -44,9 +44,9 @@ interface SiteDef {
 const SITE_DEFS: readonly SiteDef[] = [
   {
     id: "NASH",
-    name: "Nashville Distribution Center",
+    name: "Nashville",
     shortName: "Nashville",
-    role: "Main outbound hub for practices and retail",
+    role: "Headquarters, distribution",
     ambientC: 24,
     inboundDocks: 3,
     outboundDocks: 5,
@@ -57,9 +57,9 @@ const SITE_DEFS: readonly SiteDef[] = [
   },
   {
     id: "JCTY",
-    name: "Johnson City Plant",
+    name: "Johnson City, Tennessee",
     shortName: "Johnson City",
-    role: "Manufacturing and finished-goods warehouse",
+    role: "Manufacturing and operations",
     ambientC: 22,
     inboundDocks: 3,
     outboundDocks: 3,
@@ -69,10 +69,10 @@ const SITE_DEFS: readonly SiteDef[] = [
     forklifts: 2,
   },
   {
-    id: "WEST",
-    name: "West Coast Hub",
-    shortName: "West Coast",
-    role: "Regional distribution and R&D samples",
+    id: "NWK",
+    name: "Newark, California",
+    shortName: "Newark",
+    role: "R&D and regional",
     ambientC: 31,
     inboundDocks: 2,
     outboundDocks: 2,
@@ -86,7 +86,7 @@ const SITE_DEFS: readonly SiteDef[] = [
 /** Road travel time between sites, compressed so trips finish within a demo. */
 export function travelMinutes(a: SiteId, b: SiteId): number {
   const key = [a, b].sort().join("-");
-  const table: Record<string, number> = { "JCTY-NASH": 180, "NASH-WEST": 420, "JCTY-WEST": 480 };
+  const table: Record<string, number> = { "JCTY-NASH": 180, "NASH-NWK": 420, "JCTY-NWK": 480 };
   return table[key] ?? 120;
 }
 
@@ -140,7 +140,7 @@ function buildSite(def: SiteDef, rng: Rng): Site {
     coldRooms.push({
       id: `${def.id}-CR${i}`,
       siteId: def.id,
-      label: `Cold Room ${i}`,
+      label: `Temp-controlled room ${i}`,
       setpointC: COLD_SETPOINT_C,
       currentC: round2(COLD_SETPOINT_C + rng.float(-0.4, 0.4)),
       status: "ok",
@@ -229,7 +229,7 @@ function generateLots(sites: Site[], today: string, rng: Rng, catalog: Record<st
   for (let i = 0; i < warning; i++) plan.push("warning");
   while (plan.length < total - sites.length) plan.push("ok");
 
-  const injectables = PRODUCTS.filter((p) => p.category === "Injectable");
+  const aesthetics = PRODUCTS.filter((p) => p.category === "Aesthetics");
   const siteWeights: [number, number][] = [
     [0, 0.45],
     [1, 0.35],
@@ -256,18 +256,18 @@ function generateLots(sites: Site[], today: string, rng: Rng, catalog: Record<st
             : rng.int(120, p.shelfLifeDays - 30);
     const expiresOn = addDays(today, daysLeft);
     const receivedOn = addDays(expiresOn, -p.shelfLifeDays);
-    const qty =
-      p.category === "Injectable" ? rng.int(4, 36) * 10 : p.category === "Device Kit" ? rng.int(2, 24) * 10 : rng.int(20, 200) * 12;
+    const qty = p.category === "Aesthetics" ? rng.int(4, 36) * 10 : p.category === "Device" ? rng.int(2, 24) * 10 : rng.int(20, 200) * 12;
     const lot: Lot = { lotId: newLotId(receivedOn), sku, qty, receivedOn, expiresOn, bayId: bay.id };
     catalog[lot.lotId] = { lotId: lot.lotId, sku, receivedOn, expiresOn };
     return lot;
   };
 
   for (const status of rng.shuffle(plan)) {
-    const preferInjectable = status !== "ok" && rng.chance(0.6);
-    const product = preferInjectable ? rng.pick(injectables) : rng.pick(PRODUCTS);
+    const preferAesthetics = status !== "ok" && rng.chance(0.6);
+    const product = preferAesthetics ? rng.pick(aesthetics) : rng.pick(PRODUCTS);
     const site = pickSite();
-    const zone: BayZone = product.coldChain ? "cold" : "ambient";
+    // Synthetic scenario: any lot may sit in a temperature-controlled zone. This says nothing about real storage needs.
+    const zone: BayZone = rng.chance(0.4) ? "cold" : "ambient";
     const candidates = site.bays.filter((b) => b.zone === zone);
     const minLots = Math.min(...candidates.map((b) => b.lots.length));
     const bay = rng.pick(candidates.filter((b) => b.lots.length === minLots));
@@ -315,18 +315,18 @@ function orderKindPlan(n: number, rng: Rng): OrderKind[] {
 function orderLines(channel: Channel, rng: Rng): OrderLine[] {
   const pool =
     channel === "Practice"
-      ? ["NT-100", "NT-050", "DF-100", "DFL-100", "MN-001", "MN-010"]
+      ? ["AES-DXF-1", "AES-DXF-2", "AES-RHA-1", "AES-RHA-2", "DEV-SKP-1", "DEV-SKP-10"]
       : channel === "Retail"
-        ? ["AG-006", "AT-002", "SS-050", "AS-008", "BR-030", "AN-050"]
-        : ["AG-006", "AT-002", "SS-050", "AS-008", "BR-030", "AN-050", "MN-001"];
+        ? ["CON-PNX-1", "CON-BLZ-1", "CON-STV-1", "CON-BJV-1", "CON-SRN-1"]
+        : ["CON-PNX-1", "CON-BLZ-1", "CON-STV-1", "CON-BJV-1", "CON-SRN-1", "DEV-SKP-1"];
   const skus = rng.shuffle(pool).slice(0, rng.int(1, 3));
   return skus.map((sku) => {
     const p = productBySku(sku);
     let qty: number;
     if (channel === "Practice") {
-      if (sku.startsWith("NT")) qty = rng.int(2, 12);
-      else if (sku.startsWith("DF")) qty = rng.int(4, 20);
-      else if (sku === "MN-010") qty = rng.int(1, 3);
+      if (sku.endsWith("-2")) qty = rng.int(1, 3);
+      else if (sku.startsWith("AES")) qty = rng.int(2, 12);
+      else if (sku === "DEV-SKP-10") qty = rng.int(1, 3);
       else qty = rng.int(2, 10);
     } else if (channel === "Retail") {
       qty = rng.int(2, 12) * 12;
@@ -340,9 +340,9 @@ function orderLines(channel: Channel, rng: Rng): OrderLine[] {
 
 function fulfillmentSiteFor(channel: Channel, rng: Rng): SiteId {
   const r = rng.next();
-  if (channel === "Practice") return r < 0.7 ? "NASH" : "WEST";
+  if (channel === "Practice") return r < 0.7 ? "NASH" : "NWK";
   if (channel === "Retail") return r < 0.6 ? "NASH" : "JCTY";
-  return r < 0.5 ? "WEST" : "NASH";
+  return r < 0.5 ? "NWK" : "NASH";
 }
 
 function historicalLot(sku: string, shipDate: string, rng: Rng, catalog: Record<string, LotRecord>): string {
@@ -526,9 +526,9 @@ const TRUCK_PLAN: readonly TruckPlan[] = [
   { n: 110, site: "JCTY", kind: "reefer", direction: "outbound", dock: 4, task: 40, dwell: 35 },
   { n: 111, site: "JCTY", kind: "dry", direction: "inbound", eta: 35 },
   { n: 112, site: "JCTY", kind: "reefer", direction: "outbound", origin: "NASH", eta: 150 },
-  { n: 113, site: "WEST", kind: "reefer", direction: "inbound", origin: "NASH", dock: 1, task: 900, dwell: 165 },
-  { n: 114, site: "WEST", kind: "dry", direction: "outbound", dock: 3, task: 55, dwell: 25 },
-  { n: 115, site: "WEST", kind: "dry", direction: "inbound", origin: "NASH", eta: 40, delay: 135 },
+  { n: 113, site: "NWK", kind: "reefer", direction: "inbound", origin: "NASH", dock: 1, task: 900, dwell: 165 },
+  { n: 114, site: "NWK", kind: "dry", direction: "outbound", dock: 3, task: 55, dwell: 25 },
+  { n: 115, site: "NWK", kind: "dry", direction: "inbound", origin: "NASH", eta: 40, delay: 135 },
 ];
 
 function buildTrucks(sites: Site[], shipments: Shipment[], today: string, rng: Rng): void {
@@ -577,9 +577,7 @@ function buildTrucks(sites: Site[], shipments: Shipment[], today: string, rng: R
     }
     // Attach a recent shipment so the detail panel has contents to show.
     const fromSite = plan.origin ?? plan.site;
-    const pool = recent.filter(
-      (s) => s.fromSite === fromSite && !s.truckId && s.lines.some((l) => productBySku(l.sku).coldChain === reefer),
-    );
+    const pool = recent.filter((s) => s.fromSite === fromSite && !s.truckId);
     const fallback = recent.filter((s) => !s.truckId);
     const shipment = pool.length ? rng.pick(pool) : fallback.length ? rng.pick(fallback) : undefined;
     if (shipment) {

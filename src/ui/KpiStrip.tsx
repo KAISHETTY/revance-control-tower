@@ -118,14 +118,14 @@ export function KpiStrip() {
       />
       <Kpi
         id="cold"
-        label="Cold-chain alerts"
+        label="Temperature alerts"
         value={formatInt(k.coldChainAlerts)}
         sub={k.coldChainAlerts ? "open now" : "all readings in range"}
         tone={k.coldChainAlerts > 0 ? "bad" : "ok"}
         icon={<Snowflake className={iconCls} />}
         active={isActive("cold")}
         onClick={() => toggle("cold")}
-        hint="Shows cold-chain alerts"
+        hint="Shows temperature alerts"
       />
     </section>
   );

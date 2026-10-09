@@ -38,7 +38,7 @@ describe("generateWorld", () => {
     expect(w.sites.map((s) => [s.id, s.docks.length])).toEqual([
       ["NASH", 8],
       ["JCTY", 6],
-      ["WEST", 4],
+      ["NWK", 4],
     ]);
     const trucks = w.sites.flatMap((s) => s.trucks);
     expect(trucks.length).toBeGreaterThanOrEqual(12);

@@ -19,7 +19,7 @@ export interface Pose extends Vec2 {
 }
 
 const SITE_ORIGINS: Record<SiteId, Vec2> = {
-  WEST: { x: -108, z: 26 },
+  NWK: { x: -108, z: 26 },
   NASH: { x: 0, z: 0 },
   JCTY: { x: 104, z: -36 },
 };

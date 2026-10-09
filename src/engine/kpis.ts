@@ -70,7 +70,7 @@ export function computeKpis(world: World, exceptions: readonly ReconException[],
     fillNum += Math.min(qty, shippedQty.get(key) ?? 0);
   }
 
-  const stockValueBySite = { NASH: 0, JCTY: 0, WEST: 0 } as Record<SiteId, number>;
+  const stockValueBySite = { NASH: 0, JCTY: 0, NWK: 0 } as Record<SiteId, number>;
   let lots30 = 0;
   let lots90 = 0;
   let expired = 0;

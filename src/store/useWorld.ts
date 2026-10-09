@@ -9,7 +9,7 @@ import { hasWebGL } from "../lib/webgl";
 export type ViewMode = "network" | SiteId;
 export type Speed = 0 | 1 | 5 | 20;
 export type RenderMode = "3d" | "2d";
-export type Tab = "alerts" | "orders" | "lots" | "how";
+export type Tab = "alerts" | "orders" | "lots" | "why" | "how";
 export type AlertFilter = "all" | "cold" | "expiry" | "ops" | "shipping";
 export type Theme = "dark" | "light";
 

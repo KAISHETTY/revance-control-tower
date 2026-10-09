@@ -15,6 +15,8 @@ import {
   type Severity,
 } from "../engine/reconcile";
 import { cn } from "../lib/cn";
+import { PublicTag } from "./PublicTag";
+import { SYSTEMS, SYSTEMS_NOTE } from "./systems";
 import { toCsv } from "../lib/csv";
 import { daysBetween, formatShortDate } from "../lib/dates";
 import { formatInt, formatMoney, formatMoneyExact } from "../lib/format";
@@ -112,8 +114,11 @@ export function OrdersPanel() {
     <div className="flex h-full min-h-0 flex-col">
       <div className="space-y-2 border-b border-line px-3 py-2.5">
         <p className="text-xs text-muted">
-          Three-way match of {formatInt(world.orders.length)} orders against shipments and invoices.{" "}
+          Three-way match of {formatInt(world.orders.length)} synthetic orders: {SYSTEMS.sales}, {SYSTEMS.shipment} and {SYSTEMS.finance}.{" "}
           <span className="text-fg">{formatInt(summary.exceptions)} exceptions</span>, {formatMoney(summary.dollarsAtRisk)} at risk.
+        </p>
+        <p className="text-[11px] text-muted">
+          {SYSTEMS_NOTE} <PublicTag />
         </p>
         <Suspense fallback={<div className="skeleton h-24 rounded-lg" />}>
           <ExceptionChart summary={summary} onPick={(t) => setType((cur) => (cur === t ? "all" : t))} active={type} />
@@ -372,13 +377,13 @@ export function OrderDrawer() {
                     Product
                   </th>
                   <th scope="col" className={cell}>
-                    Ordered
+                    {SYSTEMS.sales}
                   </th>
                   <th scope="col" className={cell}>
-                    Shipped
+                    {SYSTEMS.shipment}
                   </th>
                   <th scope="col" className={cell}>
-                    Invoiced
+                    {SYSTEMS.finance}
                   </th>
                 </tr>
               </thead>
@@ -427,16 +432,19 @@ export function OrderDrawer() {
               </tbody>
             </table>
           </div>
+          <p className="text-[11px] text-muted">
+            {SYSTEMS_NOTE} <PublicTag />
+          </p>
 
           <dl className="grid grid-cols-1 gap-3 text-xs sm:grid-cols-3">
             <div className="rounded-lg border border-line p-3">
-              <dt className="font-semibold text-muted uppercase">Order</dt>
+              <dt className="font-semibold text-muted">{SYSTEMS.sales}: order</dt>
               <dd className="mt-1">
                 {formatShortDate(order.orderDate)} · {formatMoneyExact(order.lines.reduce((a, l) => a + l.qty * l.unitPrice, 0))}
               </dd>
             </div>
             <div className="rounded-lg border border-line p-3">
-              <dt className="font-semibold text-muted uppercase">Shipment</dt>
+              <dt className="font-semibold text-muted">{SYSTEMS.shipment}</dt>
               <dd className="mt-1 space-y-0.5">
                 {content.shipments.length === 0
                   ? "None"
@@ -449,7 +457,7 @@ export function OrderDrawer() {
               </dd>
             </div>
             <div className="rounded-lg border border-line p-3">
-              <dt className="font-semibold text-muted uppercase">Invoices</dt>
+              <dt className="font-semibold text-muted">{SYSTEMS.finance}: invoices</dt>
               <dd className="mt-1 space-y-0.5">
                 {content.invoices.length === 0
                   ? "None"

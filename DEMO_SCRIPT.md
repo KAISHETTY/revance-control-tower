@@ -1,47 +1,45 @@
-# Two-minute phone demo
+# Two-minute demo (laptop or phone, local only)
 
-Setup: open the deployed URL on your phone before you sit down, and leave it on the network view at 1x speed. Turn on Do Not Disturb. Backup: `docs/demo.webm` (download it to your phone beforehand).
+Setup: start it on your own device before you sit down (`npm run build && npm run preview -- --host`, then open the printed address on your phone, or run it on your laptop). Do not use a public link. Leave it on the network view at 1x speed and turn on Do Not Disturb. Backup: `docs/demo.webm` saved on your device.
 
-## 0:00 to 0:15, the opener (lead with the problem, not the code)
+## 0:00 to 0:15, the opener
 
-> "Most cold-chain problems are invisible until they cost you: a reefer sitting at a dock in the heat, a lot that expires on the shelf, an order that shipped but never got billed. Those live in four different systems. I wanted to see what it looks like when they're on one screen."
+> "I read your public priorities on running the sales and finance systems as one. I built a small prototype on made-up data to think through the gap. Tell me where it is wrong."
 
-Then: "Everything you'll see is synthetic, made up. It isn't connected to anything of yours."
+Point at the banner: unofficial, not affiliated, synthetic data, not connected to anything.
 
 ## 0:15 to 0:35, network view
 
-- Hold the phone so they can see the three sites. Point at the headline sentence at the top: it is computed from the data (cold-chain alerts, expiring lots, orders with problems, dollars at risk).
-- "Each island is a site. The ring is its health. The trucks are moving between them in simulated time."
-- Optional: swipe with one finger to orbit and show that it's live 3D.
+- Show the three sites: Nashville, Johnson City and Newark. Their locations and roles are from public sources; the layouts and all the numbers are made up.
+- Point at the headline sentence ("Across Nashville, Johnson City and Newark: …"). It is computed from the synthetic data, not typed in.
+- Optional: swipe with one finger to orbit and show that it's live.
 
-## 0:35 to 1:00, a reefer with a temperature excursion
+## 0:35 to 1:00, a temperature excursion (generic scenario)
 
-- Tap the top alert: **Reefer TRK-113 excursion**. The camera flies to the West Coast dock.
-- Read the explanation out loud: "likely at the dock with doors open too long in a 31°C yard… possibly compromised."
-- Point at the box temperature and the shipment on board, which lists the customer, the products and the lot numbers.
-- "So this connects a sensor reading to the exact lots and customer it affects."
+- Tap the top alert, **TRK-113 temperature excursion**. The camera flies to the dock at Newark.
+- Read the hedged explanation and the next step. Point out that the shipment on board lists the lots and the customer.
+- "This is a generic temperature-controlled lane. I don't know which of your products actually need it, and that's one of my questions."
 
 ## 1:00 to 1:20, an expiring lot
 
 - Tap the **Lots** tab, then the first lot marked "≤ 30 days". The camera flies to its bay, and the pallets are colored by expiry.
-- "Orange is under 30 days, red is expired and still in a pickable bay. That's a write-off, or worse, a shipment."
+- "Product names are public; the lots, quantities and dates are invented."
 
-## 1:20 to 1:45, an order-to-cash exception
+## 1:20 to 1:45, a sales-to-finance mismatch
 
-- Tap the **Orders** tab. "This is a three-way match: order against shipment against invoice."
-- Tap the top row. The drawer shows ordered, shipped and invoiced side by side, with the mismatch highlighted in red, the dollar impact and a next step.
-- If there's time, filter **Type → Price mismatch** or **Shipped, not invoiced**, and mention Export CSV.
+- Tap the **Orders** tab. The columns are Sales side (Salesforce / field CRM), Shipment (warehouse) and Finance side (ERP). "I took those system names from a public job posting. I don't know how yours actually connect."
+- Tap the top row: the three sides appear next to each other, with the mismatch highlighted, a dollar impact and a next step.
+- If there's time, open the **Why this, for Revance** tab and scroll through it.
 
-## 1:45 to 2:00, close with questions (then stop talking)
+## 1:45 to 2:00, close (then stop talking)
 
-1. "Where would this break in your real setup?"
-2. "Which of these alerts would hurt most today?"
-3. "What would you need to see before trusting something like this?"
+> "Which of these alerts would actually matter most to your team?"
+
+If the conversation keeps going, the full question list is in the **Why this, for Revance** tab.
 
 ## If something goes wrong
 
 - **3D is slow or blank:** tap the layers icon in the top bar to switch to the 2D map. Everything works the same.
 - **Lost the view:** tap **Reset view**.
-- **Want a different scenario:** the circular-arrows icon regenerates the world from a new seed.
 - **Phone is struggling:** on a laptop, the sparkles icon turns on low graphics.
-- **No network:** play `docs/demo.webm`.
+- **Nothing loads:** play `docs/demo.webm`.

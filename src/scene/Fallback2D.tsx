@@ -271,7 +271,7 @@ function TruckMark({
   return (
     <Clickable
       objRef={{ kind: "truck", id: t.id }}
-      label={`Truck ${t.id}, ${t.kind}, ${t.status}`}
+      label={`Truck ${t.id}, ${t.kind === "reefer" ? "temperature-controlled lane" : "dry van"}, ${t.status}`}
       overlay={a ? <Pulse at={{ x: p.x, z: p.z - 3 * scale }} color={SEV_COLOR[a.severity]} r={1.4 * scale} /> : null}
     >
       <g transform={`translate(${p.x} ${p.z}) rotate(${-p.rot * DEG}) scale(${scale})`}>

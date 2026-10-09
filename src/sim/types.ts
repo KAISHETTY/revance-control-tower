@@ -1,5 +1,5 @@
-export type SiteId = "NASH" | "JCTY" | "WEST";
-export const SITE_IDS: readonly SiteId[] = ["NASH", "JCTY", "WEST"];
+export type SiteId = "NASH" | "JCTY" | "NWK";
+export const SITE_IDS: readonly SiteId[] = ["NASH", "JCTY", "NWK"];
 
 export type DockType = "inbound" | "outbound";
 export type DockStatus = "free" | "occupied" | "blocked";
@@ -107,14 +107,15 @@ export interface Site {
   forklifts: Forklift[];
 }
 
-export type ProductCategory = "Injectable" | "Device Kit" | "Skincare";
+export type ProductCategory = "Aesthetics" | "Device" | "Consumer skincare";
 
 export interface Product {
   sku: string;
   name: string;
   category: ProductCategory;
   unitPrice: number;
-  coldChain: boolean;
+  /** Public-source note shown with the product, e.g. distribution arrangements. */
+  note?: string;
   shelfLifeDays: number;
 }
 

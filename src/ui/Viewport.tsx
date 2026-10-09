@@ -57,7 +57,9 @@ function Legend() {
             <span className="flex items-center gap-1">{swatch(DOCK_COLORS.occupied)} In use</span>
             <span className="flex items-center gap-1">{swatch(DOCK_COLORS.blocked)} Blocked</span>
           </div>
-          <p className="text-muted">White trucks with a blue unit are reefers. Pulsing markers are open alerts.</p>
+          <p className="text-muted">
+            White trucks with a blue unit run a temperature-controlled lane (synthetic scenario). Pulsing markers are open alerts.
+          </p>
         </div>
       ) : (
         <Button size="sm" variant="subtle" className="bg-panel/90 backdrop-blur" onClick={() => setOpen(true)}>

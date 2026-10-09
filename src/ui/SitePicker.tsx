@@ -5,7 +5,7 @@ const OPTIONS: { value: ViewMode; label: string }[] = [
   { value: "network", label: "Network" },
   { value: "NASH", label: "Nashville" },
   { value: "JCTY", label: "Johnson City" },
-  { value: "WEST", label: "West Coast" },
+  { value: "NWK", label: "Newark" },
 ];
 
 export function SitePicker({ className }: { className?: string }) {

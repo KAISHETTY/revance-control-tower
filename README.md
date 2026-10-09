@@ -1,17 +1,19 @@
-# Cold-Chain Control Tower
+# Revance Control Tower
 
-A 3D supply-chain control tower for a cold-chain aesthetics and skincare network, running entirely in the browser on **synthetic data**. It looks like a strategy game; underneath it is an ordinary data model (sites, docks, trucks, stock, orders, shipments, invoices) with a tested engine that finds real operational problems:
+**Unofficial prototype built from public information.** Not affiliated with or endorsed by Revance. All data is synthetic, and it is not connected to any real system.
 
-- cold-chain excursions in cold rooms and reefer trucks
+A 3D supply-chain control tower across three sites, running entirely in the browser on **synthetic data**. It looks like a strategy game; underneath it is an ordinary data model (sites, docks, trucks, stock, orders, shipments, invoices) with a tested engine that finds operational problems:
+
+- temperature excursions on temperature-controlled lanes and in temperature-controlled rooms (a generic, synthetic scenario)
 - expired and soon-to-expire lots still on the shelf
 - late trucks, blocked docks and low forklift batteries
-- order-to-cash breaks: shipped but not invoiced, price and quantity mismatches, duplicate invoices, and more
+- order-to-cash breaks between the sales side, the warehouse and finance: shipped but not invoiced, price and quantity mismatches, duplicate invoices, and more
 
-> Prototype on synthetic data. Not connected to any real system.
+> Unofficial prototype. Not affiliated with or endorsed by Revance. Synthetic data. Not connected to any real system.
 
 ![Network view](docs/screenshots/desktop-network.png)
 
-| Site view                              | Reefer alert detail                            | Orders panel                             |
+| Site view                              | Temperature alert detail                       | Orders panel                             |
 | -------------------------------------- | ---------------------------------------------- | ---------------------------------------- |
 | ![](docs/screenshots/desktop-site.png) | ![](docs/screenshots/desktop-alert-detail.png) | ![](docs/screenshots/desktop-orders.png) |
 
@@ -19,11 +21,22 @@ Phone: ![](docs/screenshots/phone-network.png)
 
 A backup recording of the happy path is in [`docs/demo.webm`](docs/demo.webm).
 
+## What is public and what is made up
+
+Only the items marked "From public sources" in the app come from public information, and they are used as plain text only: no logos, brand colors, imagery or marketing text.
+
+| From public sources                                                                                                                                                       | Synthetic (invented)                                           |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Site locations and roles: Nashville (headquarters, distribution), Johnson City, Tennessee (manufacturing and operations), Newark, California (R&D and regional)           | Site layouts, docks, equipment, trucks, carriers, temperatures |
+| Product names: DAXXIFY and RHA Collection fillers (RHA distributed in the US via a partner); SkinPen microneedling kits; PanOxyl, Blue Lizard, StriVectin, BIOJUVE, Sarna | SKUs, pack variants, prices, lots, shelf lives, stock levels   |
+| System names from a public job posting: Salesforce / field CRM (sales side), warehouse (shipment), ERP (finance side). How they are actually connected is unknown.        | Customers, orders, shipments, invoices and every dollar figure |
+| Public priorities as read from public material (shown in the "Why this, for Revance" tab)                                                                                 | All alerts, KPIs and explanations                              |
+
+The app makes no clinical or efficacy claims about any product and does not say which products need refrigeration. Temperature monitoring is a generic scenario: lots are placed in temperature-controlled zones at random. "Which of your products are actually temperature-controlled in transit?" is one of the open questions.
+
 ## The story
 
-A three-site network: the **Nashville Distribution Center** (main outbound hub, 8 docks), the **Johnson City Plant** (manufacturing and finished goods, 6 docks) and the **West Coast Hub** (regional distribution and R&D samples, 4 docks). It ships temperature-sensitive injectables, microneedling device kits and consumer skincare to aesthetic practices, retailers and web customers. City names are used as site labels only; everything else (products, carriers, customers, lots, orders, prices) is invented.
-
-Every generated world starts with something worth finding: a reefer with a temperature excursion in a hot West Coast yard, a cold room drifting warm, expired lots still in pickable bays, two late trucks, a blocked dock and about a third of orders with a billing or shipping problem.
+Every generated world starts with something worth finding: a temperature-controlled truck with an excursion in a hot synthetic yard at Newark, a temperature-controlled room drifting warm, expired lots still in pickable bays, two late trucks, a blocked dock and about a third of orders with a mismatch between the sales side, the warehouse and finance.
 
 ## Run it
 
@@ -47,24 +60,17 @@ npm run dev          # http://localhost:5173
 
 Useful URL flags: `?seed=7` (different world), `?speed=0|1|5|20`, `?view=2d`, `?webgl=0` (simulate a device without WebGL), `?perf=off` (disable the slow-device check), and `?leva=1` in dev for the leva tuning panel.
 
-Keyboard: `Ctrl/Cmd + K` opens the command palette to jump to any site, truck, dock, cold room, lot, order or alert.
+Keyboard: `Ctrl/Cmd + K` opens the command palette to jump to any site, truck, dock, temperature-controlled room, lot, order or alert.
 
-## Deploy (public URL for your phone)
+## Showing it (local only, do not publish)
 
-The app is a static site: `npm run build` produces `dist/`, with no server and no environment variables needed.
+Do not publish this version to a public URL. A public link that carries the company's name should not be shared. It is meant to be shown from your own laptop or phone.
 
-**Vercel** (config in `vercel.json`)
+- **Laptop:** `npm run dev`, then open <http://localhost:5173>. For the production build: `npm run build && npm run preview`, then open <http://localhost:4173>.
+- **Your phone on the same Wi-Fi:** `npm run build && npm run preview -- --host`. Vite prints a `Network:` address such as `http://192.168.x.x:4173`; open it on your phone. If Windows Firewall asks, allow Node.js on private networks only. Stop the server when you are done.
+- **Offline backup:** play `docs/demo.webm`.
 
-1. `npm i -g vercel` then `vercel login`.
-2. From the project folder, run `vercel --prod` and accept the detected settings (framework Vite, build `npm run build`, output `dist`).
-3. Open the printed `https://…vercel.app` URL on your phone.
-
-**Netlify** (config in `netlify.toml`)
-
-1. Easiest: `npm run build`, then drag the `dist` folder onto <https://app.netlify.com/drop>.
-2. Or with the CLI: `npm i -g netlify-cli`, `netlify login`, `netlify deploy --prod --dir=dist`.
-
-Either way you can also push the repo to GitHub and import it in the Vercel or Netlify dashboard; the config files are picked up automatically.
+The page carries `noindex, nofollow`, and the deploy configs for public hosting were removed from this version.
 
 ## Architecture
 
@@ -86,15 +92,15 @@ e2e/        Playwright end-to-end, accessibility, performance and media specs
 
 ### Data model
 
-`Site → Dock, StockBay → Lot, ColdRoom, Truck, Forklift`; `Order → Shipment (lines with lot IDs) → Invoice`; plus a `lotCatalog` of every lot ever produced (shipments reference lots that are no longer in stock). The full types are in `src/sim/types.ts`. A few fields go beyond the brief: trucks carry `location`, `direction`, `tripMinutes`, `delayMinutes` and `taskMinutes` so the simulation can move them; cold rooms carry a `biasC` (a failing compressor) and a 12-hour `history`; orders carry a `fulfillmentSite` so KPIs can be split by site.
+`Site → Dock, StockBay → Lot, ColdRoom, Truck, Forklift`; `Order → Shipment (lines with lot IDs) → Invoice`; plus a `lotCatalog` of every lot ever produced (shipments reference lots that are no longer in stock). The full types are in `src/sim/types.ts`. A few fields go beyond the brief: trucks carry `location`, `direction`, `tripMinutes`, `delayMinutes` and `taskMinutes` so the simulation can move them; temperature-controlled rooms (`ColdRoom` in code) carry a `biasC` (a failing compressor) and a 12-hour `history`; orders carry a `fulfillmentSite` so KPIs can be split by site.
 
 ### Synthetic world
 
 `generateWorld(seed = 42, today)` uses its own mulberry32 PRNG, never `Math.random`. Same seed and same date, same world. All dates are relative to today.
 
-- 15 trucks (6 reefers), 6 forklifts, 5 cold rooms, 26 bays, 46 to 54 lots, 300 orders over 90 days.
+- 15 trucks (6 on temperature-controlled lanes), 6 forklifts, 5 temperature-controlled rooms, 26 bays, 46 to 54 lots, 300 orders over 90 days.
 - Lots: 1 or 2 expired with stock on hand, 3 or 4 expiring within 30 days, 8 to 10 within 90 days in total.
-- Problems: 1 cold room in warning, 1 reefer excursion, 2 late trucks (plus a yard queue), 1 blocked dock, 1 forklift on low battery.
+- Problems: 1 temperature-controlled room in warning, 1 truck temperature excursion, 2 late trucks (plus a yard queue), 1 blocked dock, 1 forklift on low battery.
 - Orders: 9% shipped not invoiced, 7% price mismatch, 7% quantity mismatch (4% under-billed, 3% over-billed), 4% invoice without shipment, 4% never shipped and aged, 3% shipped from an expired or near-expiry lot, 1% duplicate invoice; the rest clean (with some normal short shipments that lower the fill rate).
 
 ### Simulation
@@ -103,8 +109,8 @@ e2e/        Playwright end-to-end, accessibility, performance and media specs
 
 - Trucks count down their ETA, take a free dock of the right type (inbound or outbound) or wait in the yard (shown as delayed), load or unload for 40 to 110 minutes, pull out and drive to another site. About 12% of new trips run late.
 - Forklifts shuttle between bays and active docks, drain battery, and go to the charger at 12%.
-- Cold rooms drift toward setpoint plus equipment bias, with sensor noise; readings are kept every 15 minutes.
-- Reefers at a dock for more than 90 minutes in a yard at 28°C or hotter start warming.
+- Temperature-controlled rooms drift toward setpoint plus equipment bias, with sensor noise; readings are kept every 15 minutes.
+- Temperature-controlled trucks (`kind: "reefer"` in code) at a dock for more than 90 minutes in a yard at 28°C or hotter start warming.
 - Excursions are latched until someone clicks **Log corrective action**. A blocked dock can be marked repaired.
 
 Travel times are compressed (Nashville to Johnson City is 3 simulated hours) so trips finish within a demo. Order, invoice and lot dates stay anchored to today's date while the operational clock runs.
@@ -131,7 +137,7 @@ Quantity mismatches split by direction: under-billing is `QTY_MISMATCH` and over
 ### Other engine rules
 
 - **Expiry:** expired if past the expiry date, critical at 30 days or fewer (including today), warning at 90 days or fewer.
-- **Cold chain:** setpoint 5°C (range 2 to 8°C). Warning at 2°C or more off setpoint, excursion at 4°C or more, in either direction, rounded to 0.01°C.
+- **Temperature:** synthetic setpoint 5°C. Warning at 2°C or more off setpoint, excursion at 4°C or more, in either direction, rounded to 0.01°C.
 - **Alerts:** cold excursions and warnings, expired lots, lots expiring within 30 days, trucks more than 60 minutes late, blocked docks, forklift battery under 15%, and shipments past their promise date (last 14 days; older ones live in the Orders tab). Each has a severity, a site, an object reference (clicking flies the camera there) and a next step.
 - **Explanations:** rules-based templates, at most two sentences, always hedged ("likely", "possibly"), each with a next step. There is no AI call; nothing leaves the browser.
 - **KPIs:** on-time delivery, average dock dwell (last 50 visits), dock utilization (occupied over non-blocked docks), fill rate, stock value by site, dollars at risk, clean-order rate. All split by site when a site is selected.
@@ -153,7 +159,7 @@ Measured on this machine (Windows 11, Chromium from Playwright) on the date of t
 
 **Tests**
 
-- Unit: 68 Vitest tests passing. They cover seed determinism, tick determinism and invariants (no dock held by a departed truck, no truck at two docks), all 8 exception types on hand-built fixtures, the dollar definitions, severity boundaries ($999, $1,000, $4,999, $5,000; 14, 15, 30, 31 days), expiry boundaries, cold-chain boundaries (+1.9, +2, +3.9, +4°C), alert object references and no double counting.
+- Unit: 68 Vitest tests passing. They cover seed determinism, tick determinism and invariants (no dock held by a departed truck, no truck at two docks), all 8 exception types on hand-built fixtures, the dollar definitions, severity boundaries ($999, $1,000, $4,999, $5,000; 14, 15, 30, 31 days), expiry boundaries, temperature boundaries (+1.9, +2, +3.9, +4°C), alert object references and no double counting.
 - End-to-end: 36 Playwright tests passing across phone (390×844 at 3x, touch), tablet (820×1180) and desktop (1440×900). Nine are intentional skips: the media generators, the desktop-only perf test, and the keyboard-shortcut test on phone. Every test also fails on any console error or warning.
 
 **Accessibility (axe-core)**: no serious or critical violations on the Alerts, Orders, Lots and How-it-works tabs or the detail panel, at all three sizes. Every 3D interaction has a non-3D equivalent in the alert feed, tables, lists and command palette.
@@ -183,7 +189,8 @@ The 16.7 ms rows are the 60 Hz display cap. On SwiftShader (no GPU, as in headle
 ## Assumptions and limitations
 
 - **Synthetic data only.** It is not connected to any real system. It does not know the company's actual sites, workflows, pricing, carriers, lot formats or quality procedures.
-- Rules such as the 2-day invoice grace period, the 7-day aged threshold, the 30-day shelf-life rule for shipments, the 2–8°C range and the severity thresholds are sensible defaults, not anyone's policy.
+- **Unofficial.** Not affiliated with or endorsed by Revance. Items tagged "From public sources" (site roles, product names, system names, priorities) were supplied as public information and have not been independently verified here; the company website could not be loaded while building this. Check them before the meeting.
+- Rules such as the 2-day invoice grace period, the 7-day aged threshold, the 30-day shelf-life rule for shipments, the 5°C setpoint and the severity thresholds are sensible defaults, not anyone's policy.
 - Shipments are one per order. Quantity matching compares against the earliest invoice. Partial shipments, credit memos, returns and multi-currency are not modeled.
 - The operational clock (trucks, temperatures) runs forward while order and lot dates stay anchored to today, so expiry counts do not tick down during a demo.
 - Trucks drive straight lines between site gates; there is no road routing.

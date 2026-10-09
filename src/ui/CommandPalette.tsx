@@ -113,14 +113,14 @@ export default function CommandPalette() {
                       value={`truck ${t.id} ${t.carrier} ${t.kind}`}
                       icon={<Truck className="h-4 w-4" />}
                       onSelect={() => go({ kind: "truck", id: t.id })}
-                      hint={t.kind === "reefer" ? "Reefer" : "Dry"}
+                      hint={t.kind === "reefer" ? "Temp-controlled" : "Dry"}
                     >
                       {t.id} · {t.carrier}
                     </Item>
                   )),
                 )}
               </Command.Group>
-              <Command.Group heading="Docks and cold rooms" className={groupCls}>
+              <Command.Group heading="Docks and rooms" className={groupCls}>
                 {world.sites.flatMap((s) => [
                   ...s.docks.map((d) => (
                     <Item
@@ -136,7 +136,7 @@ export default function CommandPalette() {
                   ...s.coldRooms.map((r) => (
                     <Item
                       key={r.id}
-                      value={`cold room ${s.shortName} ${r.label} ${r.id}`}
+                      value={`room temperature controlled ${s.shortName} ${r.label} ${r.id}`}
                       icon={<Thermometer className="h-4 w-4" />}
                       onSelect={() => go({ kind: "coldRoom", id: r.id })}
                     >

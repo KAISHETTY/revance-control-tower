@@ -20,6 +20,7 @@ const OrdersPanel = lazy(() => import("./ui/OrdersPanel").then((m) => ({ default
 const OrderDrawer = lazy(() => import("./ui/OrdersPanel").then((m) => ({ default: m.OrderDrawer })));
 const LotsPanel = lazy(() => import("./ui/LotsPanel").then((m) => ({ default: m.LotsPanel })));
 const HowItWorks = lazy(() => import("./ui/HowItWorks").then((m) => ({ default: m.HowItWorks })));
+const WhyThis = lazy(() => import("./ui/WhyThis").then((m) => ({ default: m.WhyThis })));
 const CommandPalette = lazy(() => import("./ui/CommandPalette"));
 
 const TICK_MS = 250;
@@ -83,6 +84,9 @@ function SidePanel() {
         <TabsTrigger value="lots" data-testid="tab-lots">
           Lots
         </TabsTrigger>
+        <TabsTrigger value="why" data-testid="tab-why">
+          Why this, for Revance
+        </TabsTrigger>
         <TabsTrigger value="how" data-testid="tab-how">
           How it works
         </TabsTrigger>
@@ -98,6 +102,11 @@ function SidePanel() {
       <TabsContent value="lots">
         <Suspense fallback={<PanelFallback />}>
           <LotsPanel />
+        </Suspense>
+      </TabsContent>
+      <TabsContent value="why">
+        <Suspense fallback={<PanelFallback />}>
+          <WhyThis />
         </Suspense>
       </TabsContent>
       <TabsContent value="how">

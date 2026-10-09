@@ -15,6 +15,7 @@ import { productBySku, productName } from "../sim/products";
 import type { Lot, ObjectRef, Shipment, World } from "../sim/types";
 import { useAlerts, useKpis } from "../store/derived";
 import { useWorld } from "../store/useWorld";
+import { PublicTag } from "./PublicTag";
 import {
   COLD_LABEL,
   COLD_TONE,
@@ -173,15 +174,22 @@ function relatedAlerts(alerts: Alert[], r: Resolved): Alert[] {
 function SiteSummary({ r }: { r: Extract<Resolved, { kind: "site" }> }) {
   const k = useKpis(r.site.id);
   return (
-    <dl>
-      <Row label="Role">{r.site.role}</Row>
-      <Row label="Docks">{`${r.site.docks.length} (${k.occupiedDocks} in use)`}</Row>
-      <Row label="Trucks on site or inbound">{r.site.trucks.length}</Row>
-      <Row label="Stock value">{formatMoney(k.stockValueBySite[r.site.id])}</Row>
-      <Row label="On-time delivery">{formatPct(k.onTimeDelivery)}</Row>
-      <Row label="Dollars at risk">{formatMoney(k.dollarsAtRisk)}</Row>
-      <Row label="Yard temperature">{formatTemp(r.site.ambientC)}</Row>
-    </dl>
+    <>
+      <dl>
+        <Row label="Location and role">
+          {r.site.role} <PublicTag />
+        </Row>
+        <Row label="Docks">{`${r.site.docks.length} (${k.occupiedDocks} in use)`}</Row>
+        <Row label="Trucks on site or inbound">{r.site.trucks.length}</Row>
+        <Row label="Stock value">{formatMoney(k.stockValueBySite[r.site.id])}</Row>
+        <Row label="On-time delivery">{formatPct(k.onTimeDelivery)}</Row>
+        <Row label="Dollars at risk">{formatMoney(k.dollarsAtRisk)}</Row>
+        <Row label="Yard temperature">{formatTemp(r.site.ambientC)} (synthetic)</Row>
+      </dl>
+      <p className="text-xs text-muted">
+        The location and role are from public sources. The layout, equipment and every number are synthetic.
+      </p>
+    </>
   );
 }
 
@@ -207,7 +215,7 @@ function Body({ r, world }: { r: Resolved; world: World }) {
         <>
           <dl>
             <Row label="Carrier">{t.carrier}</Row>
-            <Row label="Type">{t.kind === "reefer" ? "Reefer (temperature controlled)" : "Dry van"}</Row>
+            <Row label="Type">{t.kind === "reefer" ? "Temperature-controlled lane (synthetic)" : "Dry van"}</Row>
             <Row label="Location">{where}</Row>
             {t.location === "road" ? <Row label="ETA">{formatMinutes(t.etaMinutes)}</Row> : null}
             {t.location === "dock" ? <Row label="At dock for">{formatMinutes(t.dwellMinutes)}</Row> : null}
@@ -288,7 +296,9 @@ function Body({ r, world }: { r: Resolved; world: World }) {
       return (
         <>
           <dl>
-            <Row label="Zone">{b.zone === "cold" ? "Cold (2–8°C)" : b.zone === "quarantine" ? "Quarantine (on hold)" : "Ambient"}</Row>
+            <Row label="Zone">
+              {b.zone === "cold" ? "Temperature-controlled (synthetic)" : b.zone === "quarantine" ? "Quarantine (on hold)" : "Ambient"}
+            </Row>
             <Row label="Stock value">{formatMoney(value)}</Row>
             <Row label="Worst expiry">
               <Badge tone={EXPIRY_TONE[status]}>{EXPIRY_LABEL[status]}</Badge>
@@ -317,7 +327,7 @@ function Body({ r, world }: { r: Resolved; world: World }) {
           <dl>
             <Row label="Product">{p.name}</Row>
             <Row label="Quantity">{formatInt(l.qty)} units</Row>
-            <Row label="Value">{formatMoney(l.qty * p.unitPrice)}</Row>
+            <Row label="Value (synthetic)">{formatMoney(l.qty * p.unitPrice)}</Row>
             <Row label="Received">{formatLongDate(l.receivedOn)}</Row>
             <Row label="Expires">
               <span className="inline-flex items-center gap-1.5">
@@ -330,7 +340,18 @@ function Body({ r, world }: { r: Resolved; world: World }) {
                 {r.site.shortName} · bay {r.bay.label}
               </LinkButton>
             </Row>
-            <Row label="Storage">{p.coldChain ? "Cold chain, 2–8°C" : "Ambient"}</Row>
+            <Row label="Storage zone">
+              {r.bay.zone === "cold"
+                ? "Temperature-controlled (synthetic scenario)"
+                : r.bay.zone === "quarantine"
+                  ? "Quarantine"
+                  : "Ambient"}
+            </Row>
+            {p.note ? (
+              <Row label="Note">
+                {p.note} <PublicTag />
+              </Row>
+            ) : null}
           </dl>
         </>
       );
@@ -347,7 +368,7 @@ function Body({ r, world }: { r: Resolved; world: World }) {
                 <Badge tone={COLD_TONE[c.status]}>{COLD_LABEL[c.status]}</Badge>
               </span>
             </Row>
-            <Row label="Setpoint">{`${formatTemp(c.setpointC)} (range 2–8°C)`}</Row>
+            <Row label="Setpoint">{`${formatTemp(c.setpointC)} (synthetic)`}</Row>
             <Row label="Bays inside">{bays.map((b) => b.label).join(", ") || "None"}</Row>
           </dl>
           <Section title="Last 12 hours">
@@ -412,7 +433,7 @@ function titleFor(r: Resolved): { title: string; subtitle: string; badge?: React
     case "truck":
       return {
         title: r.truck.id,
-        subtitle: `${r.truck.kind === "reefer" ? "Reefer" : "Dry van"} · ${r.truck.direction}`,
+        subtitle: `${r.truck.kind === "reefer" ? "Temperature-controlled lane" : "Dry van"} · ${r.truck.direction}`,
         badge: <Badge tone={TRUCK_STATUS_TONE[r.truck.status]}>{TRUCK_STATUS_LABEL[r.truck.status]}</Badge>,
       };
     case "dock":

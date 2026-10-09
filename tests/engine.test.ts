@@ -113,7 +113,7 @@ describe("kpis", () => {
       2,
     );
 
-    const sites = (["NASH", "JCTY", "WEST"] as const).map((id) => computeKpis(w, exc, alerts, id));
+    const sites = (["NASH", "JCTY", "NWK"] as const).map((id) => computeKpis(w, exc, alerts, id));
     expect(sites.reduce((a, s) => a + s.orderCount, 0)).toBe(300);
     expect(sites.reduce((a, s) => a + s.dollarsAtRisk, 0)).toBeCloseTo(k.dollarsAtRisk, 2);
     expect(sites.reduce((a, s) => a + s.lotsExpiring30, 0)).toBe(k.lotsExpiring30);

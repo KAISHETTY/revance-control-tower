@@ -1,5 +1,9 @@
 import type { ReactNode } from "react";
 import { EXCEPTION_LABELS, EXCEPTION_TYPES } from "../engine/reconcile";
+import { PRODUCTS } from "../sim/products";
+import { QUESTIONS } from "./content";
+import { PublicTag } from "./PublicTag";
+import { SYSTEMS, SYSTEMS_NOTE } from "./systems";
 
 function H({ children }: { children: ReactNode }) {
   return <h3 className="mt-5 mb-1.5 text-sm font-semibold first:mt-0">{children}</h3>;
@@ -16,6 +20,8 @@ const EXCEPTION_HELP: Record<(typeof EXCEPTION_TYPES)[number], string> = {
   DUPLICATE_INVOICE: "a second invoice repeats an earlier one line for line (duplicate total).",
 };
 
+const CATEGORIES = ["Aesthetics", "Device", "Consumer skincare"] as const;
+
 export function HowItWorks() {
   return (
     <div
@@ -26,28 +32,56 @@ export function HowItWorks() {
       aria-label="How it works"
     >
       <p className="text-fg">
-        This is a working prototype of a supply-chain control tower for a cold-chain business: injectables that must stay at 2–8°C, device
-        kits and skincare, moving through three sites to practices, retailers and web customers.
+        An unofficial prototype of a control tower across three sites, built from public information and running on synthetic data. It
+        connects sites, stock, orders, shipments and invoices in one view.
       </p>
+
+      <H>What comes from public sources, and what is made up</H>
+      <ul className="list-disc space-y-1 pl-5">
+        <li>
+          <b className="text-fg">Sites:</b> Nashville (headquarters, distribution), Johnson City, Tennessee (manufacturing and operations)
+          and Newark, California (R&amp;D and regional). <PublicTag /> Layouts, docks, equipment and every number are invented.
+        </li>
+        <li>
+          <b className="text-fg">Products:</b> plain-text brand names only. <PublicTag /> SKUs, pack variants, prices, lots and shelf lives
+          are synthetic, and nothing here makes any claim about the products themselves.
+          <ul className="mt-1 list-[circle] space-y-0.5 pl-5">
+            {CATEGORIES.map((c) => (
+              <li key={c}>
+                {c}: {[...new Set(PRODUCTS.filter((p) => p.category === c).map((p) => p.name.replace(/ \(.*\)$/, "")))].join(", ")}
+                {c === "Aesthetics" ? " (RHA Collection: distributed in the US via a partner)" : ""}
+              </li>
+            ))}
+          </ul>
+        </li>
+        <li>
+          <b className="text-fg">Systems:</b> {SYSTEMS.sales}, {SYSTEMS.shipment}, {SYSTEMS.finance}. {SYSTEMS_NOTE} <PublicTag />
+        </li>
+        <li>
+          <b className="text-fg">Temperature monitoring</b> is a generic, synthetic scenario: some trucks run a
+          &ldquo;temperature-controlled lane&rdquo; and some rooms are temperature-controlled. Lots are placed in those zones at random.
+          Which products actually need temperature control is not known here.
+        </li>
+      </ul>
 
       <H>The data model</H>
       <ul className="list-disc space-y-1 pl-5">
         <li>
           <b className="text-fg">Sites</b> have <b className="text-fg">docks</b> (inbound or outbound),{" "}
-          <b className="text-fg">stock bays</b> (ambient, cold or quarantine), <b className="text-fg">cold rooms</b> and{" "}
-          <b className="text-fg">forklifts</b>.
+          <b className="text-fg">stock bays</b> (ambient, temperature-controlled or quarantine),{" "}
+          <b className="text-fg">temperature-controlled rooms</b> and <b className="text-fg">forklifts</b>.
         </li>
         <li>
-          <b className="text-fg">Trucks</b> are dry vans or reefers. They drive between sites, wait in the yard, dock, load or unload, and
-          leave.
+          <b className="text-fg">Trucks</b> are dry vans or temperature-controlled lanes. They drive between sites, wait in the yard, dock,
+          load or unload, and leave.
         </li>
         <li>
           <b className="text-fg">Lots</b> are batches of one product with a received and an expiry date, stored in a bay.
         </li>
         <li>
-          <b className="text-fg">Orders</b> become <b className="text-fg">shipments</b> (which lots went out, and when) and{" "}
-          <b className="text-fg">invoices</b> (what was billed). The 3D scene is just a view on top of these tables; the 2D map shows
-          exactly the same data.
+          <b className="text-fg">Orders</b> ({SYSTEMS.sales}) become <b className="text-fg">shipments</b> ({SYSTEMS.shipment}: which lots
+          went out, and when) and <b className="text-fg">invoices</b> ({SYSTEMS.finance}: what was billed). The 3D scene is just a view on
+          top of these tables; the 2D map shows exactly the same data.
         </li>
       </ul>
 
@@ -55,15 +89,15 @@ export function HowItWorks() {
       <p>
         A seeded random generator builds the world, so the same seed always gives the same world. A clock then advances it: each real second
         is 5 simulated minutes at 1x. Trucks count down their ETA, take a free dock or queue in the yard, load and leave. Forklifts shuttle
-        between bays and docks and recharge. Cold rooms and reefers drift with sensor noise. A reefer left at a dock too long in a hot yard
-        warms up. Orders, lots and invoices are anchored to today&apos;s date and cover the last 90 days.
+        between bays and docks and recharge. Temperature readings drift with sensor noise, and a temperature-controlled truck left at a dock
+        too long in a hot yard warms up. Orders, lots and invoices are anchored to today&apos;s date and cover the last 90 days.
       </p>
 
       <H>What the alerts mean</H>
       <ul className="list-disc space-y-1 pl-5">
         <li>
-          <b className="text-fg">Cold-chain excursion</b>: 4°C or more off setpoint. It stays open until someone logs a corrective action. A
-          warning starts at 2°C.
+          <b className="text-fg">Temperature excursion</b>: 4°C or more off a synthetic setpoint. It stays open until someone logs a
+          corrective action. A warning starts at 2°C.
         </li>
         <li>
           <b className="text-fg">Expired / expiring lot</b>: stock on hand that is past expiry, or within 30 days of it.
@@ -93,7 +127,10 @@ export function HowItWorks() {
 
       <H>What this is not</H>
       <ul className="list-disc space-y-1 pl-5">
-        <li>It is not connected to any real system. Every site detail, truck, lot, order, customer and dollar figure is synthetic.</li>
+        <li>
+          It is unofficial, and not affiliated with or endorsed by Revance. It is not connected to any real system, and every figure is
+          synthetic. None of it is Revance&apos;s data.
+        </li>
         <li>
           It does not know your real workflows, pricing rules, carriers or quality procedures. The rules here are reasonable defaults.
         </li>
@@ -102,12 +139,9 @@ export function HowItWorks() {
 
       <H>Questions I would ask before building this for real</H>
       <ol className="list-decimal space-y-1 pl-5">
-        <li>Which systems hold orders, shipments, invoices and inventory today (ERP, WMS, TMS), and how fresh is each feed?</li>
-        <li>What is the source of truth for pricing: contract, price list, or the order line? Who can override it?</li>
-        <li>How is invoicing triggered: on ship confirm, on proof of delivery, or manually? What happens when it fails?</li>
-        <li>How are lot numbers, expiry dates and temperatures captured, at what interval, and are loggers reconciled per shipment?</li>
-        <li>What validation and SOX controls apply, and what audit trail would a tool like this need before anyone acts on it?</li>
-        <li>Who owns each exception type day to day, and what is their target time to close?</li>
+        {QUESTIONS.map((q) => (
+          <li key={q}>{q}</li>
+        ))}
       </ol>
     </div>
   );

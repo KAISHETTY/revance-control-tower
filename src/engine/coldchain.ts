@@ -8,7 +8,7 @@ const EXCURSION_DELTA_C = 4;
 
 /**
  * Classify a reading against its setpoint. Deviation in either direction counts
- * (freezing damages injectables as much as heat). Rounded to 0.01 C so
+ * (too cold can be as bad as too warm). Rounded to 0.01 C so
  * floating-point noise never flips a boundary.
  */
 export function classifyTemp(currentC: number, setpointC: number): ColdStatus {
