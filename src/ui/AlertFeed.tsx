@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { AlarmClock, BellOff, ChevronRight, Snowflake, Truck, Wrench } from "lucide-react";
 import type { ReactNode } from "react";
 import type { Alert, AlertCategory } from "../engine/alerts";
@@ -96,7 +96,7 @@ export function AlertFeed() {
         ) : (
           <AnimatePresence initial={false}>
             {shown.map((a) => (
-              <motion.div
+              <m.div
                 key={a.id}
                 layout="position"
                 initial={{ opacity: 0, y: -4 }}
@@ -105,7 +105,7 @@ export function AlertFeed() {
                 transition={{ duration: 0.18 }}
               >
                 <AlertRow alert={a} selected={selection?.id === a.ref.id} />
-              </motion.div>
+              </m.div>
             ))}
           </AnimatePresence>
         )}

@@ -1,7 +1,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { Command } from "cmdk";
 import { AlarmClock, Box, FileText, MapPin, Package, Search, Thermometer, Truck, Warehouse } from "lucide-react";
-import { useEffect, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { EXCEPTION_LABELS } from "../engine/reconcile";
 import { productName } from "../sim/products";
 import type { ObjectRef } from "../sim/types";
@@ -38,7 +38,7 @@ function Item({
 }
 
 /** Ctrl/Cmd+K: jump to any site, truck, dock, lot, order or alert by name. */
-export function CommandPalette() {
+export default function CommandPalette() {
   const open = useWorld((s) => s.paletteOpen);
   const setOpen = useWorld((s) => s.setPaletteOpen);
   const world = useWorld((s) => s.world);
@@ -47,17 +47,6 @@ export function CommandPalette() {
   const setView = useWorld((s) => s.setView);
   const alerts = useAlerts();
   const exceptions = useExceptions();
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setOpen(!useWorld.getState().paletteOpen);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [setOpen]);
 
   const go = (ref: ObjectRef) => {
     setOpen(false);

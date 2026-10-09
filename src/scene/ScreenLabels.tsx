@@ -55,7 +55,7 @@ export function ScreenLabels() {
   const focused = view === "network" ? undefined : world.sites.find((s) => s.id === view);
 
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-label="Map labels">
+    <div className="pointer-events-none absolute inset-0 overflow-hidden" role="group" aria-label="Map labels">
       {world.sites.map((s) => {
         if (view === s.id) return null;
         const lay = siteLayout(s);

@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { BatteryCharging, Lightbulb, MapPin, Thermometer, X } from "lucide-react";
 import { lazy, Suspense, type ReactNode } from "react";
 import { toast } from "sonner";
@@ -488,7 +488,7 @@ export function DetailPanel() {
   return (
     <AnimatePresence>
       {selection ? (
-        <motion.aside
+        <m.aside
           key="detail"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -511,7 +511,7 @@ export function DetailPanel() {
             <X className="h-4 w-4" />
           </button>
           <DetailContent selection={selection} />
-        </motion.aside>
+        </m.aside>
       ) : null}
     </AnimatePresence>
   );

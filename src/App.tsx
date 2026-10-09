@@ -1,5 +1,5 @@
-import { MotionConfig } from "framer-motion";
-import { useEffect } from "react";
+import { domAnimation, LazyMotion, MotionConfig } from "framer-motion";
+import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 import { TooltipProvider } from "./components/ui/tooltip";
@@ -8,18 +8,40 @@ import { useAlerts } from "./store/derived";
 import { useWorld, type Tab } from "./store/useWorld";
 import { AlertFeed } from "./ui/AlertFeed";
 import { Banner } from "./ui/Banner";
-import { CommandPalette } from "./ui/CommandPalette";
 import { DetailPanel } from "./ui/DetailPanel";
 import { Headline } from "./ui/Headline";
-import { HowItWorks } from "./ui/HowItWorks";
 import { KpiStrip } from "./ui/KpiStrip";
-import { LotsPanel } from "./ui/LotsPanel";
-import { OrderDrawer, OrdersPanel } from "./ui/OrdersPanel";
 import { TopBar } from "./ui/TopBar";
 import { Viewport } from "./ui/Viewport";
 import { cn } from "./lib/cn";
 
+// Panels that are not visible at first paint load on demand to keep the shell small.
+const OrdersPanel = lazy(() => import("./ui/OrdersPanel").then((m) => ({ default: m.OrdersPanel })));
+const OrderDrawer = lazy(() => import("./ui/OrdersPanel").then((m) => ({ default: m.OrderDrawer })));
+const LotsPanel = lazy(() => import("./ui/LotsPanel").then((m) => ({ default: m.LotsPanel })));
+const HowItWorks = lazy(() => import("./ui/HowItWorks").then((m) => ({ default: m.HowItWorks })));
+const CommandPalette = lazy(() => import("./ui/CommandPalette"));
+
 const TICK_MS = 250;
+
+function PanelFallback() {
+  return <div className="skeleton m-3 h-40 rounded-lg" aria-label="Loading" />;
+}
+
+/** Ctrl/Cmd+K toggles the command palette. */
+function usePaletteHotkey() {
+  const setOpen = useWorld((s) => s.setPaletteOpen);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setOpen(!useWorld.getState().paletteOpen);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [setOpen]);
+}
 
 /** Drives the simulation: speed x 5 simulated minutes per real second, in whole-minute steps. */
 function useSimClock() {
@@ -69,13 +91,19 @@ function SidePanel() {
         <AlertFeed />
       </TabsContent>
       <TabsContent value="orders">
-        <OrdersPanel />
+        <Suspense fallback={<PanelFallback />}>
+          <OrdersPanel />
+        </Suspense>
       </TabsContent>
       <TabsContent value="lots">
-        <LotsPanel />
+        <Suspense fallback={<PanelFallback />}>
+          <LotsPanel />
+        </Suspense>
       </TabsContent>
       <TabsContent value="how">
-        <HowItWorks />
+        <Suspense fallback={<PanelFallback />}>
+          <HowItWorks />
+        </Suspense>
       </TabsContent>
     </Tabs>
   );
@@ -84,7 +112,10 @@ function SidePanel() {
 export default function App() {
   const theme = useWorld((s) => s.theme);
   const tab = useWorld((s) => s.tab);
+  const orderDrawer = useWorld((s) => s.orderDrawer);
+  const paletteOpen = useWorld((s) => s.paletteOpen);
   useSimClock();
+  usePaletteHotkey();
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -92,36 +123,40 @@ export default function App() {
   }, [theme]);
 
   return (
-    <MotionConfig reducedMotion="user">
-      <TooltipProvider delayDuration={300}>
-        <div className="flex min-h-dvh flex-col lg:h-dvh">
-          <Banner />
-          <TopBar />
-          <Headline />
-          <KpiStrip />
-          <main className="flex flex-1 flex-col gap-3 px-3 pb-3 sm:px-4 lg:min-h-0 lg:flex-row">
-            <section
-              aria-label="Map"
-              className="relative h-[54dvh] min-h-[320px] overflow-hidden rounded-xl border border-line lg:h-auto lg:min-h-0 lg:flex-1"
-            >
-              <Viewport />
-              <DetailPanel />
-            </section>
-            <aside
-              aria-label="Alerts, orders and lots"
-              className={cn(
-                "flex h-[78dvh] min-h-0 flex-col overflow-hidden rounded-xl border border-line bg-panel lg:h-auto",
-                tab === "orders" ? "lg:w-[600px] xl:w-[640px]" : "lg:w-[380px] xl:w-[420px]",
-              )}
-            >
-              <SidePanel />
-            </aside>
-          </main>
-          <OrderDrawer />
-          <CommandPalette />
-          <Toaster theme={theme} position="top-center" richColors closeButton />
-        </div>
-      </TooltipProvider>
-    </MotionConfig>
+    <LazyMotion features={domAnimation} strict>
+      <MotionConfig reducedMotion="user">
+        <TooltipProvider delayDuration={300}>
+          <div className="flex min-h-dvh flex-col lg:h-dvh">
+            <Banner />
+            <TopBar />
+            <Headline />
+            <KpiStrip />
+            <main className="flex flex-1 flex-col gap-3 px-3 pb-3 sm:px-4 lg:min-h-0 lg:flex-row">
+              <section
+                aria-label="Map"
+                className="relative h-[54dvh] min-h-[320px] overflow-hidden rounded-xl border border-line lg:h-auto lg:min-h-0 lg:flex-1"
+              >
+                <Viewport />
+                <DetailPanel />
+              </section>
+              <aside
+                aria-label="Alerts, orders and lots"
+                className={cn(
+                  "flex h-[78dvh] min-h-0 flex-col overflow-hidden rounded-xl border border-line bg-panel lg:h-auto",
+                  tab === "orders" ? "lg:w-[600px] xl:w-[640px]" : "lg:w-[380px] xl:w-[420px]",
+                )}
+              >
+                <SidePanel />
+              </aside>
+            </main>
+            <Suspense fallback={null}>
+              {orderDrawer ? <OrderDrawer /> : null}
+              {paletteOpen ? <CommandPalette /> : null}
+            </Suspense>
+            <Toaster theme={theme} position="top-center" richColors closeButton />
+          </div>
+        </TooltipProvider>
+      </MotionConfig>
+    </LazyMotion>
   );
 }

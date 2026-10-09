@@ -216,7 +216,8 @@ export default function Scene() {
         camera={{ position: pos.toArray(), fov: 38, near: 2, far: 1800 }}
         gl={{ antialias: !low, powerPreference: "high-performance" }}
         onPointerMissed={() => select(null)}
-        aria-label="3D view of the network"
+        role="img"
+        aria-label="3D view of the network. Every object here is also listed in the alerts, orders and lots panels."
         data-testid="scene-canvas"
         style={{ touchAction: "none" }}
       >
